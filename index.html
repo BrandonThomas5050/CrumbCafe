@@ -1,0 +1,1529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Crumb Café — Swarthmore College</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --green: #3B5444;
+    --cream: #F5EFE6;
+    --espresso: #5C3D2E;
+    --terracotta: #C8785A;
+    --sage: #8A9E86;
+    --white: #ffffff;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;scroll-behavior:smooth;}
+  body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--espresso);overflow-x:hidden;}
+  .serif{font-family:'Playfair Display',serif;}
+
+  /* ── LOADING SCREEN ── */
+  #loading-screen{
+    position:fixed;inset:0;background:var(--cream);z-index:9999;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    transition:opacity 0.5s ease;
+  }
+  #loading-screen.hidden{opacity:0;pointer-events:none;}
+  .loading-squirrel{font-size:2.5rem;animation:pulse 0.8s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.15);}}
+  .progress-bar-wrap{
+    width:180px;height:4px;background:rgba(138,158,134,0.3);border-radius:999px;
+    margin-top:24px;position:relative;overflow:visible;
+  }
+  .progress-bar{height:100%;background:var(--green);border-radius:999px;width:0%;transition:width 0.03s linear;}
+  .progress-squirrel{
+    position:absolute;top:-14px;font-size:1.1rem;
+    animation:bounce 0.3s ease-in-out infinite;
+    transition:left 0.03s linear;
+    left:0%;
+  }
+  @keyframes bounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-5px);}}
+  .loading-title{margin-top:20px;font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--espresso);letter-spacing:0.05em;}
+
+  /* ── NAVBAR ── */
+  nav{
+    position:fixed;top:0;left:0;right:0;z-index:100;
+    padding:0 2rem;height:72px;display:flex;align-items:center;justify-content:space-between;
+    transition:background 0.4s,box-shadow 0.4s;
+  }
+  nav.scrolled{background:rgba(245,239,230,0.97);backdrop-filter:blur(12px);box-shadow:0 2px 20px rgba(92,61,46,0.1);}
+  .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+  .nav-logo-icon{width:40px;height:40px;}
+  .nav-logo-text{font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--espresso);}
+  .nav-links{display:flex;align-items:center;gap:32px;}
+  .nav-link{
+    text-decoration:none;color:var(--espresso);font-weight:500;font-size:0.95rem;
+    position:relative;transition:color 0.3s;
+  }
+  .nav-link::after{
+    content:'';position:absolute;bottom:-4px;left:0;right:0;height:2px;
+    background:var(--terracotta);transform:scaleX(0);transition:transform 0.3s;border-radius:999px;
+  }
+  .nav-link.active::after,.nav-link:hover::after{transform:scaleX(1);}
+  .nav-link.active{color:var(--green);}
+  .nav-cta{
+    background:var(--terracotta);color:white;padding:10px 22px;border-radius:999px;
+    text-decoration:none;font-weight:600;font-size:0.9rem;
+    transition:background 0.3s,transform 0.2s;box-shadow:0 4px 16px rgba(200,120,90,0.3);
+  }
+  .nav-cta:hover{background:var(--espresso);transform:scale(1.05);}
+  .hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px;}
+  .hamburger span{width:24px;height:2px;background:var(--espresso);border-radius:2px;transition:all 0.3s;}
+  .mobile-menu{
+    display:none;position:fixed;top:72px;left:0;right:0;background:var(--cream);
+    padding:16px;border-bottom:1px solid rgba(92,61,46,0.1);z-index:99;
+    box-shadow:0 8px 24px rgba(92,61,46,0.1);
+  }
+  .mobile-menu.open{display:block;}
+  .mobile-link{
+    display:block;padding:12px 16px;border-radius:12px;text-decoration:none;
+    color:var(--espresso);font-weight:500;margin-bottom:4px;transition:background 0.2s;
+  }
+  .mobile-link:hover,.mobile-link.active{background:var(--green);color:white;}
+  .mobile-cta{
+    display:block;padding:12px 16px;border-radius:12px;text-decoration:none;
+    background:var(--terracotta);color:white;font-weight:600;text-align:center;margin-top:8px;
+  }
+
+  /* ── PAGES ── */
+  .page{display:none;min-height:100vh;}
+  .page.active{display:block;}
+
+  /* ── PAGE TRANSITIONS ── */
+  @keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+  .page-enter{animation:fadeUp 0.4s ease forwards;}
+
+  /* ── HERO ── */
+  .hero{
+    min-height:100vh;background:var(--green);position:relative;overflow:hidden;
+    display:flex;align-items:center;
+  }
+  .hero-bg-photo{
+    position:absolute;right:0;top:0;width:50%;height:100%;
+    background:url('https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=1200&q=80') center/cover;
+    opacity:0.25;
+    -webkit-mask-image:linear-gradient(to left,black 0%,transparent 100%);
+    mask-image:linear-gradient(to left,black 0%,transparent 100%);
+  }
+  .hero-texture{
+    position:absolute;inset:0;opacity:0.08;
+    background-image:radial-gradient(circle,rgba(245,239,230,0.4) 1px,transparent 1px);
+    background-size:28px 28px;
+  }
+  .hero-content{
+    position:relative;max-width:1200px;margin:0 auto;padding:0 2rem;
+    width:100%;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;
+    padding-top:80px;
+  }
+  .hero-badge{
+    display:inline-flex;align-items:center;gap:8px;
+    background:rgba(200,120,90,0.2);color:rgba(245,239,230,0.85);
+    padding:8px 16px;border-radius:999px;font-size:0.85rem;font-weight:500;margin-bottom:24px;
+  }
+  .hero-title{
+    font-family:'Playfair Display',serif;font-size:clamp(3rem,5vw,5rem);
+    color:var(--cream);line-height:1.1;margin-bottom:20px;
+  }
+  .hero-title .accent{color:var(--terracotta);}
+  .hero-desc{color:rgba(245,239,230,0.8);font-size:1.1rem;line-height:1.7;margin-bottom:32px;max-width:480px;}
+  .hero-btns{display:flex;gap:12px;flex-wrap:wrap;}
+  .btn-primary{
+    background:var(--cream);color:var(--green);padding:14px 28px;border-radius:999px;
+    font-weight:700;font-size:1rem;text-decoration:none;border:none;cursor:pointer;
+    transition:all 0.3s;display:inline-flex;align-items:center;gap:8px;
+  }
+  .btn-primary:hover{background:white;transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.2);}
+  .btn-secondary{
+    background:var(--terracotta);color:white;padding:14px 28px;border-radius:999px;
+    font-weight:700;font-size:1rem;text-decoration:none;border:none;cursor:pointer;
+    transition:all 0.3s;display:inline-flex;align-items:center;gap:8px;
+  }
+  .btn-secondary:hover{background:#a85f42;transform:translateY(-2px);}
+  .hero-stats{
+    display:flex;gap:32px;margin-top:40px;padding-top:32px;
+    border-top:1px solid rgba(245,239,230,0.2);
+  }
+  .stat-num{font-family:'Playfair Display',serif;font-size:2rem;color:var(--terracotta);}
+  .stat-label{color:rgba(245,239,230,0.6);font-size:0.85rem;}
+  .hero-photo-card{position:relative;}
+  .hero-photo-card .tilt-bg{
+    position:absolute;inset:-16px;background:rgba(200,120,90,0.2);
+    border-radius:24px;transform:rotate(3deg);
+  }
+  .hero-photo-card img{
+    position:relative;width:100%;height:480px;object-fit:cover;
+    border-radius:24px;box-shadow:0 24px 64px rgba(0,0,0,0.3);
+  }
+  .todays-special-badge{
+    position:absolute;bottom:-24px;left:-24px;
+    background:var(--cream);padding:16px 20px;border-radius:16px;
+    box-shadow:0 8px 32px rgba(92,61,46,0.2);display:flex;align-items:center;gap:12px;
+  }
+  .special-icon{
+    width:44px;height:44px;background:var(--terracotta);border-radius:50%;
+    display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;
+  }
+  .special-title{font-family:'Playfair Display',serif;color:var(--espresso);font-weight:600;font-size:0.95rem;}
+  .special-sub{color:var(--sage);font-size:0.82rem;}
+  .scroll-indicator{
+    position:absolute;bottom:32px;left:50%;transform:translateX(-50%);
+    width:24px;height:40px;border:2px solid rgba(245,239,230,0.4);border-radius:999px;
+    display:flex;justify-content:center;padding-top:6px;
+  }
+  .scroll-dot{
+    width:4px;height:8px;background:rgba(245,239,230,0.4);border-radius:999px;
+    animation:scrollBounce 2s ease-in-out infinite;
+  }
+  @keyframes scrollBounce{0%,100%{transform:translateY(0);}50%{transform:translateY(10px);}}
+
+  /* ── WHY CRUMB ── */
+  .why-section{padding:96px 2rem;background:var(--cream);position:relative;overflow:hidden;}
+  .blob-tl{position:absolute;top:-80px;right:-80px;width:320px;height:320px;background:rgba(59,84,68,0.06);border-radius:50%;filter:blur(48px);}
+  .blob-br{position:absolute;bottom:-60px;left:-60px;width:220px;height:220px;background:rgba(200,120,90,0.05);border-radius:50%;filter:blur(40px);}
+  .section-inner{max-width:1200px;margin:0 auto;}
+  .why-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;margin-bottom:64px;}
+  .eyebrow{font-size:0.78rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--terracotta);margin-bottom:16px;display:block;}
+  .section-title{font-family:'Playfair Display',serif;font-size:clamp(2.2rem,3.5vw,3.2rem);line-height:1.15;margin-bottom:20px;}
+  .section-title .green{color:var(--green);}
+  .section-body{color:rgba(92,61,46,0.7);font-size:1.05rem;line-height:1.75;margin-bottom:20px;}
+  .squirrel-wrap{position:relative;display:flex;justify-content:center;align-items:center;}
+  .squirrel-circle{
+    position:absolute;width:320px;height:320px;background:rgba(138,158,134,0.12);
+    border-radius:50%;
+  }
+  .squirrel-wrap svg{position:relative;width:280px;height:280px;}
+  .feature-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
+  .feature-card{
+    background:white;border-radius:20px;padding:24px;box-shadow:0 4px 20px rgba(92,61,46,0.08);
+    transition:transform 0.3s,box-shadow 0.3s;cursor:default;
+  }
+  .feature-card:hover{transform:translateY(-8px);box-shadow:0 16px 40px rgba(92,61,46,0.14);}
+  .feature-icon{font-size:2rem;margin-bottom:12px;}
+  .feature-title{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--espresso);margin-bottom:8px;}
+  .feature-desc{color:rgba(92,61,46,0.6);font-size:0.88rem;line-height:1.6;}
+
+  /* ── DAILY SPECIAL ── */
+  .special-section{padding:64px 2rem;background:var(--espresso);}
+  .special-card{
+    max-width:900px;margin:0 auto;
+    background:linear-gradient(135deg,rgba(200,120,90,0.2),rgba(200,120,90,0.1));
+    border:1px solid rgba(200,120,90,0.3);border-radius:24px;padding:40px 48px;
+    display:flex;align-items:center;gap:40px;flex-wrap:wrap;
+  }
+  .spinning-badge{
+    width:120px;height:120px;background:var(--terracotta);border-radius:50%;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    position:relative;flex-shrink:0;
+  }
+  .spinning-ring{
+    position:absolute;inset:8px;border:2px dashed rgba(245,239,230,0.3);
+    border-radius:50%;animation:spin 20s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .badge-text-top{color:rgba(245,239,230,0.9);font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;z-index:1;}
+  .badge-text-main{font-family:'Playfair Display',serif;color:var(--cream);font-size:1.3rem;z-index:1;}
+  .badge-star{font-size:1.1rem;z-index:1;margin-bottom:2px;}
+  .special-info{flex:1;min-width:240px;}
+  .special-name{font-family:'Playfair Display',serif;font-size:clamp(1.5rem,2.5vw,2.2rem);color:var(--cream);margin-bottom:8px;}
+  .special-desc{color:rgba(245,239,230,0.7);font-size:1rem;margin-bottom:16px;}
+  .special-pricing{display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+  .price-main{font-family:'Playfair Display',serif;font-size:2.5rem;color:var(--terracotta);}
+  .price-old{color:rgba(245,239,230,0.4);font-size:1.1rem;text-decoration:line-through;}
+  .price-badge{background:var(--green);color:var(--cream);padding:4px 12px;border-radius:999px;font-size:0.8rem;font-weight:600;}
+  .special-btn{
+    background:var(--cream);color:var(--espresso);padding:14px 28px;border-radius:999px;
+    font-weight:700;text-decoration:none;transition:all 0.3s;white-space:nowrap;cursor:pointer;border:none;font-size:1rem;
+  }
+  .special-btn:hover{background:white;transform:scale(1.05);}
+
+  /* ── HOURS ── */
+  .hours-section{padding:96px 2rem;background:var(--green);position:relative;overflow:hidden;}
+  .hours-section::before{
+    content:'';position:absolute;inset:0;
+    background-image:radial-gradient(circle,rgba(245,239,230,0.06) 1px,transparent 1px);
+    background-size:32px 32px;
+  }
+  .hours-header{text-align:center;margin-bottom:64px;position:relative;}
+  .hours-title{font-family:'Playfair Display',serif;font-size:clamp(2rem,3.5vw,3rem);color:var(--cream);}
+  .hours-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start;position:relative;}
+  .hours-card{background:var(--cream);border-radius:24px;padding:40px;box-shadow:0 16px 48px rgba(0,0,0,0.2);}
+  .hours-card-header{display:flex;align-items:center;gap:16px;margin-bottom:32px;}
+  .hours-icon-box{
+    width:52px;height:52px;background:var(--green);border-radius:14px;
+    display:flex;align-items:center;justify-content:center;font-size:1.3rem;
+  }
+  .hours-card-title{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--espresso);}
+  .hours-card-sub{color:var(--sage);font-size:0.9rem;}
+  .time-row{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:16px;background:rgba(59,84,68,0.05);border-radius:12px;margin-bottom:12px;
+  }
+  .time-label{color:var(--espresso);font-weight:500;}
+  .time-val{font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--green);}
+  .hours-note{
+    background:rgba(200,120,90,0.1);border:1px solid rgba(200,120,90,0.2);
+    border-radius:12px;padding:16px;display:flex;gap:12px;align-items:flex-start;margin-top:8px;
+  }
+  .note-icon{color:var(--terracotta);font-size:1rem;flex-shrink:0;margin-top:2px;}
+  .note-text{color:rgba(92,61,46,0.7);font-size:0.88rem;line-height:1.6;}
+  .contact-cards{display:flex;flex-direction:column;gap:14px;}
+  .contact-card{
+    background:rgba(245,239,230,0.1);border:1px solid rgba(245,239,230,0.15);
+    border-radius:16px;padding:20px 24px;display:flex;align-items:center;gap:16px;
+    text-decoration:none;transition:all 0.3s;
+  }
+  .contact-card:hover{background:rgba(245,239,230,0.2);transform:translateX(6px);}
+  .contact-icon-box{
+    width:44px;height:44px;background:var(--terracotta);border-radius:12px;
+    display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;
+  }
+  .contact-role{font-family:'Playfair Display',serif;font-size:1rem;color:var(--cream);}
+  .contact-email{color:var(--sage);font-size:0.85rem;}
+  .contact-arrow{color:var(--terracotta);margin-left:auto;font-size:1.1rem;}
+
+  /* ── QUOTE ── */
+  .quote-section{padding:80px 2rem 96px;background:var(--cream);position:relative;overflow:hidden;}
+  .quote-wrap{max-width:800px;margin:0 auto;text-align:center;position:relative;}
+  .quote-mark{
+    font-family:'Playfair Display',serif;font-size:clamp(80px,12vw,160px);
+    color:rgba(59,84,68,0.08);line-height:1;position:absolute;top:-30px;left:0;
+  }
+  .quote-text{
+    font-family:'Playfair Display',serif;font-size:clamp(2rem,4vw,4.5rem);
+    color:var(--espresso);line-height:1.2;position:relative;
+  }
+  .quote-text .green{color:var(--green);}
+  .quote-squirrel{position:absolute;right:0;bottom:-8px;font-size:3rem;opacity:0.7;}
+  .quote-line{width:64px;height:3px;background:var(--terracotta);border-radius:999px;margin:40px auto 0;}
+
+  /* ── HOW TO ORDER ── */
+  .how-section{padding:96px 2rem;background:var(--cream);}
+  .how-header{text-align:center;margin-bottom:64px;}
+  .how-sub{color:rgba(92,61,46,0.7);font-size:1.05rem;max-width:480px;margin:12px auto 0;}
+  .steps-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;position:relative;}
+  .steps-connector{
+    position:absolute;top:40px;left:10%;right:10%;height:1px;
+    background:linear-gradient(to right,rgba(59,84,68,0.15),rgba(200,120,90,0.35),rgba(59,84,68,0.15));
+  }
+  .step-card{background:white;border-radius:20px;padding:24px;box-shadow:0 4px 20px rgba(92,61,46,0.08);position:relative;transition:all 0.3s;}
+  .step-card:hover{box-shadow:0 12px 40px rgba(92,61,46,0.14);transform:translateY(-4px);}
+  .step-icon-wrap{position:relative;margin-bottom:20px;display:inline-block;}
+  .step-icon-box{
+    width:60px;height:60px;background:var(--green);border-radius:16px;
+    display:flex;align-items:center;justify-content:center;font-size:1.4rem;
+  }
+  .step-num{
+    position:absolute;top:-8px;right:-8px;width:26px;height:26px;
+    background:var(--terracotta);border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Playfair Display',serif;font-size:0.7rem;color:white;font-weight:700;
+  }
+  .step-title{font-family:'Playfair Display',serif;font-size:1rem;color:var(--espresso);margin-bottom:8px;}
+  .step-desc{color:rgba(92,61,46,0.6);font-size:0.82rem;line-height:1.6;}
+  .how-cta{text-align:center;margin-top:48px;}
+  .btn-green{
+    background:var(--green);color:var(--cream);padding:16px 40px;border-radius:999px;
+    font-weight:700;font-size:1.05rem;text-decoration:none;border:none;cursor:pointer;
+    transition:all 0.3s;display:inline-flex;align-items:center;gap:10px;
+    box-shadow:0 8px 24px rgba(59,84,68,0.3);
+  }
+  .btn-green:hover{background:var(--espresso);transform:scale(1.04);}
+
+  /* ── FOOTER ── */
+  footer{background:var(--green);color:var(--cream);padding:64px 2rem 32px;}
+  .footer-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:48px;max-width:1200px;margin:0 auto;}
+  .footer-brand{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+  .footer-brand-name{font-family:'Playfair Display',serif;font-size:1.4rem;}
+  .footer-desc{color:var(--sage);font-size:0.9rem;line-height:1.7;}
+  .footer-heading{font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:16px;}
+  .footer-link{display:block;color:var(--sage);text-decoration:none;margin-bottom:8px;font-size:0.9rem;transition:color 0.2s;}
+  .footer-link:hover{color:white;}
+  .footer-hours-day{color:var(--sage);font-size:0.9rem;}
+  .footer-hours-time{color:white;font-weight:600;font-size:1rem;}
+  .footer-bottom{
+    max-width:1200px;margin:48px auto 0;padding-top:24px;
+    border-top:1px solid rgba(138,158,134,0.3);text-align:center;
+    color:var(--sage);font-size:0.85rem;
+  }
+
+  /* ── MENU PAGE ── */
+  .menu-hero{background:var(--green);padding:120px 2rem 60px;text-align:center;}
+  .menu-hero-eyebrow{color:var(--terracotta);font-size:0.78rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:12px;}
+  .menu-hero-title{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,5vw,4rem);color:var(--cream);margin-bottom:12px;}
+  .menu-hero-sub{color:rgba(245,239,230,0.7);font-size:1.05rem;}
+  .menu-content{max-width:1200px;margin:0 auto;padding:40px 2rem 80px;}
+
+  /* carousel */
+  .carousel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;}
+  .carousel-title-wrap{display:flex;align-items:center;gap:12px;}
+  .flame-box{width:40px;height:40px;background:var(--terracotta);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;}
+  .carousel-title{font-family:'Playfair Display',serif;font-size:1.8rem;color:var(--espresso);}
+  .carousel-arrows{display:flex;gap:8px;}
+  .arrow-btn{
+    width:40px;height:40px;background:white;border-radius:50%;border:none;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;font-size:1rem;
+    box-shadow:0 2px 12px rgba(92,61,46,0.12);transition:all 0.25s;color:var(--espresso);
+  }
+  .arrow-btn:hover{background:var(--green);color:white;}
+  .carousel-track{display:flex;gap:24px;overflow-x:auto;padding-bottom:16px;scroll-snap-type:x mandatory;scrollbar-width:none;}
+  .carousel-track::-webkit-scrollbar{display:none;}
+  .carousel-card{
+    flex-shrink:0;width:280px;background:white;border-radius:20px;overflow:hidden;
+    box-shadow:0 4px 20px rgba(92,61,46,0.1);cursor:pointer;scroll-snap-align:start;
+    transition:all 0.3s;
+  }
+  .carousel-card:hover{transform:translateY(-8px);box-shadow:0 16px 40px rgba(92,61,46,0.18);}
+  .carousel-img-wrap{position:relative;height:180px;overflow:hidden;}
+  .carousel-img-wrap img{width:100%;height:100%;object-fit:cover;transition:transform 0.4s;}
+  .carousel-card:hover .carousel-img-wrap img{transform:scale(1.08);}
+  .carousel-img-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.5),transparent);}
+  .carousel-price{
+    position:absolute;bottom:10px;right:10px;background:var(--terracotta);
+    color:white;padding:4px 12px;border-radius:999px;font-family:'Playfair Display',serif;font-size:1rem;
+  }
+  .carousel-card-body{padding:18px;}
+  .carousel-card-name{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--espresso);margin-bottom:6px;}
+  .carousel-card-desc{color:rgba(92,61,46,0.6);font-size:0.83rem;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+
+  /* category tabs */
+  .cat-tabs-wrap{
+    position:sticky;top:72px;z-index:50;background:rgba(245,239,230,0.97);
+    backdrop-filter:blur(12px);padding:12px 0;margin:24px -2rem;
+    padding-left:2rem;padding-right:2rem;border-bottom:1px solid rgba(92,61,46,0.08);
+  }
+  .cat-tabs{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;}
+  .cat-tabs::-webkit-scrollbar{display:none;}
+  .cat-tab{
+    flex-shrink:0;padding:9px 20px;border-radius:999px;border:none;cursor:pointer;
+    font-weight:600;font-size:0.88rem;transition:all 0.25s;background:white;color:var(--espresso);
+  }
+  .cat-tab.active{background:var(--green);color:white;box-shadow:0 4px 12px rgba(59,84,68,0.25);}
+  .cat-tab:hover:not(.active){background:rgba(59,84,68,0.08);}
+
+  /* menu sections */
+  .menu-section{margin-bottom:56px;}
+  .menu-section-title{display:flex;align-items:center;gap:12px;font-family:'Playfair Display',serif;font-size:1.8rem;color:var(--espresso);margin-bottom:20px;}
+  .menu-items-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .menu-item-card{
+    background:white;border-radius:16px;padding:14px;display:flex;align-items:center;
+    gap:12px;box-shadow:0 2px 12px rgba(92,61,46,0.07);cursor:pointer;
+    transition:all 0.25s;overflow:hidden;min-width:0;
+  }
+  .menu-item-card:hover{box-shadow:0 8px 28px rgba(92,61,46,0.14);transform:scale(1.015);}
+  .menu-item-thumb{
+    width:72px;height:72px;min-width:72px;border-radius:12px;overflow:hidden;flex-shrink:0;
+    background:var(--cream);
+  }
+  .menu-item-thumb img{width:100%;height:100%;object-fit:cover;transition:transform 0.3s;display:block;}
+  .menu-item-card:hover .menu-item-thumb img{transform:scale(1.1);}
+  .menu-item-info{flex:1;min-width:0;overflow:hidden;}
+  .menu-item-name{font-family:'Playfair Display',serif;font-size:0.95rem;color:var(--espresso);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .menu-item-desc{color:rgba(92,61,46,0.6);font-size:0.78rem;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+  .menu-item-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;min-width:fit-content;}
+  .menu-item-price{font-family:'Playfair Display',serif;font-size:0.95rem;color:var(--green);white-space:nowrap;}
+  .plus-btn{
+    width:28px;height:28px;background:var(--terracotta);border-radius:50%;border:none;
+    color:white;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;
+    opacity:0;transition:opacity 0.2s;flex-shrink:0;
+  }
+  .menu-item-card:hover .plus-btn{opacity:1;}
+
+  /* on touch devices always show the plus btn */
+  @media(hover:none){.plus-btn{opacity:1;}}
+
+  /* ── MODAL ── */
+  .modal-backdrop{
+    position:fixed;inset:0;background:rgba(0,0,0,0.65);backdrop-filter:blur(4px);
+    z-index:200;display:none;align-items:flex-end;justify-content:center;
+  }
+  .modal-backdrop.open{display:flex;}
+  @media(min-width:768px){.modal-backdrop{align-items:center;}}
+  .modal-panel{
+    background:var(--cream);border-radius:24px 24px 0 0;width:100%;max-width:480px;
+    max-height:90vh;overflow:hidden;animation:slideUp 0.35s cubic-bezier(0.25,0.46,0.45,0.94);
+  }
+  @media(min-width:768px){.modal-panel{border-radius:24px;}}
+  @keyframes slideUp{from{transform:translateY(100%);opacity:0;}to{transform:translateY(0);opacity:1;}}
+  .modal-img{position:relative;height:200px;}
+  .modal-img img{width:100%;height:100%;object-fit:cover;}
+  .modal-img-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.65),transparent);}
+  .modal-close{
+    position:absolute;top:14px;right:14px;width:36px;height:36px;
+    background:rgba(255,255,255,0.9);border-radius:50%;border:none;cursor:pointer;
+    font-size:1rem;display:flex;align-items:center;justify-content:center;
+  }
+  .modal-item-name{position:absolute;bottom:14px;left:16px;font-family:'Playfair Display',serif;font-size:1.5rem;color:white;}
+  .modal-item-desc{position:absolute;bottom:0px;left:16px;color:rgba(255,255,255,0.75);font-size:0.82rem;}
+  .modal-body{padding:24px;}
+  .modal-price-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+  .modal-price{font-family:'Playfair Display',serif;font-size:2rem;color:var(--green);}
+  .qty-row{display:flex;align-items:center;gap:12px;background:white;border-radius:999px;padding:4px;box-shadow:0 2px 10px rgba(92,61,46,0.1);}
+  .qty-btn{width:36px;height:36px;background:none;border:none;cursor:pointer;border-radius:50%;font-size:1.1rem;transition:background 0.2s;display:flex;align-items:center;justify-content:center;}
+  .qty-btn:hover{background:var(--cream);}
+  .qty-num{font-family:'Playfair Display',serif;font-size:1.2rem;width:28px;text-align:center;color:var(--espresso);}
+  .modal-label{font-weight:500;color:var(--espresso);margin-bottom:8px;font-size:0.92rem;}
+  .modal-textarea{
+    width:100%;background:white;border:1px solid rgba(92,61,46,0.15);border-radius:14px;
+    padding:12px;font-family:'DM Sans',sans-serif;font-size:0.9rem;color:var(--espresso);
+    resize:none;outline:none;transition:border-color 0.2s;
+  }
+  .modal-textarea:focus{border-color:var(--sage);}
+  .modal-add-btn{
+    width:100%;background:var(--terracotta);color:white;border:none;cursor:pointer;
+    padding:16px;border-radius:14px;font-weight:700;font-size:1rem;margin-top:16px;
+    transition:background 0.3s;font-family:'DM Sans',sans-serif;
+  }
+  .modal-add-btn:hover{background:#a85f42;}
+
+  /* ── CART BUBBLE ── */
+  #cart-bubble{
+    position:fixed;bottom:28px;right:28px;z-index:100;
+    background:var(--green);color:white;padding:14px 24px;border-radius:999px;
+    box-shadow:0 8px 32px rgba(59,84,68,0.4);display:none;align-items:center;gap:10px;
+    cursor:pointer;transition:transform 0.2s;animation:bubbleIn 0.35s ease;
+  }
+  #cart-bubble:hover{transform:scale(1.05);}
+  @keyframes bubbleIn{from{transform:translateY(40px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+  .bubble-icon-wrap{position:relative;}
+  .bubble-badge{
+    position:absolute;top:-8px;right:-8px;width:20px;height:20px;
+    background:var(--terracotta);border-radius:50%;font-size:0.7rem;font-weight:700;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .bubble-divider{width:1px;height:24px;background:rgba(255,255,255,0.3);}
+  .bubble-total{font-family:'Playfair Display',serif;font-size:1.1rem;}
+
+  /* ── ORDER PAGE ── */
+  .order-hero{background:var(--green);padding:120px 2rem 60px;text-align:center;}
+  .order-hero-title{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,5vw,4rem);color:var(--cream);margin-bottom:10px;}
+  .order-hero-sub{color:rgba(245,239,230,0.7);font-size:1rem;}
+  .order-content{max-width:780px;margin:0 auto;padding:40px 2rem 80px;}
+  .tab-switch{display:flex;gap:8px;background:white;border-radius:14px;padding:6px;box-shadow:0 2px 12px rgba(92,61,46,0.1);margin-bottom:32px;}
+  .tab-btn{
+    flex:1;padding:12px;border-radius:10px;border:none;cursor:pointer;
+    font-weight:600;font-size:0.95rem;transition:all 0.25s;background:none;color:var(--espresso);
+  }
+  .tab-btn.active{background:var(--green);color:white;box-shadow:0 4px 12px rgba(59,84,68,0.25);}
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block;animation:fadeUp 0.3s ease;}
+
+  /* order form */
+  .order-section-card{background:white;border-radius:20px;padding:28px;box-shadow:0 4px 20px rgba(92,61,46,0.08);margin-bottom:20px;}
+  .order-section-head{display:flex;align-items:center;gap:10px;font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--espresso);margin-bottom:20px;}
+  .cart-item-row{
+    display:flex;align-items:center;gap:14px;padding:14px;
+    background:var(--cream);border-radius:14px;margin-bottom:10px;
+  }
+  .cart-item-thumb{width:52px;height:52px;border-radius:10px;overflow:hidden;flex-shrink:0;}
+  .cart-item-thumb img{width:100%;height:100%;object-fit:cover;}
+  .cart-item-info{flex:1;min-width:0;}
+  .cart-item-name{font-family:'Playfair Display',serif;font-size:0.95rem;color:var(--espresso);}
+  .cart-item-note{color:var(--sage);font-size:0.78rem;}
+  .cart-item-price{color:var(--green);font-weight:600;font-size:0.88rem;}
+  .cart-controls{display:flex;align-items:center;gap:6px;}
+  .cart-qty-btn{
+    width:28px;height:28px;border-radius:50%;background:white;border:none;
+    cursor:pointer;font-size:1rem;transition:all 0.2s;display:flex;align-items:center;justify-content:center;
+  }
+  .cart-qty-btn:hover{background:var(--terracotta);color:white;}
+  .cart-qty{width:22px;text-align:center;font-weight:600;font-size:0.9rem;color:var(--espresso);}
+  .remove-btn{width:28px;height:28px;border-radius:50%;background:white;border:none;cursor:pointer;color:#dc3545;font-size:0.9rem;transition:all 0.2s;display:flex;align-items:center;justify-content:center;margin-left:4px;}
+  .remove-btn:hover{background:#dc3545;color:white;}
+  .order-total-row{display:flex;justify-content:space-between;align-items:center;padding-top:16px;border-top:1px solid rgba(92,61,46,0.1);margin-top:8px;}
+  .order-total-label{color:var(--espresso);font-weight:500;}
+  .order-total-val{font-family:'Playfair Display',serif;font-size:1.6rem;color:var(--green);}
+  .form-label{display:block;font-weight:500;color:var(--espresso);margin-bottom:8px;font-size:0.92rem;}
+  .form-input{
+    width:100%;background:var(--cream);border:none;border-radius:12px;
+    padding:12px 16px;font-family:'DM Sans',sans-serif;font-size:0.95rem;color:var(--espresso);
+    outline:none;transition:box-shadow 0.2s;
+  }
+  .form-input:focus{box-shadow:0 0 0 2px var(--sage);}
+  .form-select{
+    width:100%;background:var(--cream);border:none;border-radius:12px;
+    padding:12px 16px;font-family:'DM Sans',sans-serif;font-size:0.95rem;color:var(--espresso);
+    outline:none;appearance:none;cursor:pointer;
+  }
+  .form-group{margin-bottom:16px;}
+  .submit-btn{
+    width:100%;background:var(--terracotta);color:white;border:none;cursor:pointer;
+    padding:18px;border-radius:14px;font-weight:700;font-size:1.05rem;
+    transition:background 0.3s;font-family:'DM Sans',sans-serif;
+    display:flex;align-items:center;justify-content:center;gap:8px;
+  }
+  .submit-btn:hover{background:#a85f42;}
+  .submit-btn:disabled{opacity:0.6;cursor:not-allowed;}
+
+  /* empty cart */
+  .empty-cart{text-align:center;padding:48px 24px;}
+  .empty-squirrel{font-size:4rem;margin-bottom:16px;}
+  .empty-title{font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--espresso);margin-bottom:8px;}
+  .empty-sub{color:rgba(92,61,46,0.6);margin-bottom:24px;}
+
+  /* success toast */
+  #success-toast{
+    position:fixed;top:90px;left:50%;transform:translateX(-50%);z-index:300;
+    background:var(--green);color:white;padding:16px 28px;border-radius:14px;
+    box-shadow:0 8px 32px rgba(59,84,68,0.4);display:none;align-items:center;gap:12px;
+    min-width:300px;animation:toastIn 0.3s ease;
+  }
+  @keyframes toastIn{from{transform:translateX(-50%) translateY(-20px);opacity:0;}to{transform:translateX(-50%) translateY(0);opacity:1;}}
+  .toast-check{font-size:1.3rem;}
+  .toast-title{font-weight:600;font-size:0.95rem;}
+  .toast-sub{font-size:0.82rem;opacity:0.8;}
+
+  /* staff view */
+  .queue-header{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--espresso);display:flex;align-items:center;gap:8px;margin-bottom:16px;}
+  .queue-count{font-size:0.9rem;color:var(--sage);font-family:'DM Sans',sans-serif;}
+  .order-cards-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .order-card{background:white;border-radius:20px;padding:20px;box-shadow:0 4px 20px rgba(92,61,46,0.08);}
+  .order-card-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;}
+  .order-card-name{font-family:'Playfair Display',serif;font-size:1.05rem;color:var(--espresso);}
+  .order-card-time{color:var(--sage);font-size:0.8rem;}
+  .order-price-badge{background:rgba(200,120,90,0.12);color:var(--terracotta);padding:4px 12px;border-radius:999px;font-size:0.82rem;font-weight:600;}
+  .order-item-row{display:flex;align-items:center;gap:8px;font-size:0.85rem;margin-bottom:6px;}
+  .order-item-qty{width:22px;height:22px;background:var(--green);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;flex-shrink:0;}
+  .order-item-name{color:var(--espresso);}
+  .order-item-note{color:var(--sage);font-size:0.75rem;font-style:italic;}
+  .order-extra-note{background:var(--cream);border-radius:10px;padding:8px 12px;color:var(--sage);font-size:0.82rem;font-style:italic;margin-bottom:14px;}
+  .mark-complete-btn{
+    width:100%;background:var(--green);color:white;border:none;cursor:pointer;
+    padding:12px;border-radius:12px;font-weight:600;font-size:0.9rem;
+    display:flex;align-items:center;justify-content:center;gap:6px;transition:background 0.3s;
+  }
+  .mark-complete-btn:hover{background:var(--espresso);}
+  .completed-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px;}
+  .completed-card{background:rgba(59,84,68,0.06);border-radius:16px;padding:16px;position:relative;}
+  .completed-check{position:absolute;top:12px;right:12px;color:var(--green);font-size:1.1rem;}
+  .completed-name{font-family:'Playfair Display',serif;color:rgba(92,61,46,0.6);font-size:0.95rem;}
+  .completed-sub{color:var(--sage);font-size:0.8rem;}
+  .empty-queue{text-align:center;padding:48px 24px;background:white;border-radius:20px;box-shadow:0 4px 20px rgba(92,61,46,0.08);}
+
+  /* ── RESPONSIVE ── */
+  @media(max-width:1024px){
+    .hero-content{grid-template-columns:1fr;gap:40px;padding-top:100px;}
+    .hero-photo-card{display:none;}
+    .hero-bg-photo{width:100%;opacity:0.12;}
+    .why-grid{grid-template-columns:1fr;}
+    .feature-cards{grid-template-columns:1fr 1fr;}
+    .steps-grid{grid-template-columns:1fr 1fr;gap:14px;}
+    .steps-connector{display:none;}
+    .hours-grid{grid-template-columns:1fr;}
+    .footer-grid{grid-template-columns:1fr 1fr;}
+    .menu-items-grid{grid-template-columns:1fr;}
+    .order-cards-grid{grid-template-columns:1fr;}
+  }
+  @media(max-width:640px){
+    nav .nav-links,.nav-cta{display:none;}
+    .hamburger{display:flex;}
+    .hero-btns{flex-direction:column;}
+    .hero-stats{gap:20px;}
+    .feature-cards{grid-template-columns:1fr;}
+    .steps-grid{grid-template-columns:1fr;}
+    .special-card{flex-direction:column;text-align:center;padding:28px 24px;}
+    .footer-grid{grid-template-columns:1fr;}
+    .menu-items-grid{grid-template-columns:1fr;}
+    .completed-cards{grid-template-columns:1fr;}
+    .todays-special-badge{display:none;}
+
+    /* ── Mobile menu card fixes ── */
+    .menu-content{padding:32px 16px 80px;}
+    .menu-item-card{padding:12px;gap:10px;overflow:hidden;}
+    .menu-item-thumb{width:64px;height:64px;min-width:64px;}
+    .menu-item-name{font-size:0.88rem;}
+    .menu-item-desc{font-size:0.75rem;}
+    .menu-item-price{font-size:0.88rem;}
+    .menu-section-title{font-size:1.4rem;}
+    .cat-tabs-wrap{margin:16px -16px;padding-left:16px;padding-right:16px;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════ LOADING SCREEN ══════════════════════════════════════ -->
+<div id="loading-screen">
+  <div class="loading-squirrel">🐿️</div>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar" id="prog-bar"></div>
+    <div class="progress-squirrel" id="prog-squirrel">🐿️</div>
+  </div>
+  <p class="loading-title">Crumb Café</p>
+</div>
+
+<!-- ══════════════════════════════════════ NAVBAR ══════════════════════════════════════ -->
+<nav id="navbar">
+  <a href="#" class="nav-logo" onclick="showPage('home')">
+    <svg class="nav-logo-icon" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="48" fill="#C8785A"/>
+      <path d="M30 55 Q25 45 30 35 Q35 25 45 30 L45 35 Q40 35 38 40 Q36 48 40 55 Z" fill="#5C3D2E"/>
+      <circle cx="42" cy="42" r="3.5" fill="#F5EFE6"/>
+      <path d="M45 50 Q50 45 55 48 L72 45 Q82 42 86 51 Q89 59 80 63 L55 59 Q50 61 45 56 Z" fill="#F5EFE6"/>
+      <path d="M25 60 Q14 72 20 86 Q26 96 36 91 Q46 86 41 71 Q38 62 30 58 Z" fill="#5C3D2E"/>
+      <path d="M72 38 Q74 35 76 38 Q78 41 76 43 L74 45 L72 43 Q70 41 72 38" fill="#F5EFE6" opacity="0.6"/>
+      <path d="M79 32 Q81 29 83 32 Q85 35 83 37 L81 39 L79 37 Q77 35 79 32" fill="#F5EFE6" opacity="0.4"/>
+    </svg>
+    <span class="nav-logo-text">Crumb Café</span>
+  </a>
+  <div class="nav-links">
+    <a href="#" class="nav-link active" id="nav-home" onclick="showPage('home');return false;">Home</a>
+    <a href="#" class="nav-link" id="nav-menu" onclick="showPage('menu');return false;">Menu</a>
+    <a href="#" class="nav-link" id="nav-order" onclick="showPage('order');return false;">Order</a>
+  </div>
+  <a href="#" class="nav-cta" onclick="showPage('order');return false;">Order Now</a>
+  <div class="hamburger" id="hamburger" onclick="toggleMobile()">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+<div class="mobile-menu" id="mobile-menu">
+  <a href="#" class="mobile-link active" id="mob-home" onclick="showPage('home');toggleMobile();return false;">Home</a>
+  <a href="#" class="mobile-link" id="mob-menu" onclick="showPage('menu');toggleMobile();return false;">Menu</a>
+  <a href="#" class="mobile-link" id="mob-order" onclick="showPage('order');toggleMobile();return false;">Order</a>
+  <a href="#" class="mobile-cta" onclick="showPage('order');toggleMobile();return false;">Order Now</a>
+</div>
+
+<!-- ══════════════════════════════════════ HOME PAGE ══════════════════════════════════════ -->
+<div class="page active" id="page-home">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg-photo"></div>
+    <div class="hero-texture"></div>
+    <div class="hero-content">
+      <div>
+        <div class="hero-badge">🐿️ Student-run since forever</div>
+        <h1 class="hero-title serif">Late Nights,<br><span class="accent">Warm Bites</span></h1>
+        <p class="hero-desc">Your cozy campus corner for something good. Open late, made with love, powered by your fellow students at Swarthmore College.</p>
+        <div class="hero-btns">
+          <a href="#" class="btn-primary" onclick="showPage('menu');return false;">Browse Menu →</a>
+          <a href="#" class="btn-secondary" onclick="showPage('order');return false;">Place an Order</a>
+        </div>
+        <div class="hero-stats">
+          <div><div class="stat-num serif">9PM</div><div class="stat-label">Opens Nightly</div></div>
+          <div><div class="stat-num serif">100%</div><div class="stat-label">Student Run</div></div>
+          <div><div class="stat-num serif">∞</div><div class="stat-label">Cozy Vibes</div></div>
+        </div>
+      </div>
+      <div class="hero-photo-card">
+        <div class="tilt-bg"></div>
+        <img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=700&q=80" alt="Coffee"/>
+        <div class="todays-special-badge">
+          <div class="special-icon">☕</div>
+          <div>
+            <div class="special-title serif">Today's Special</div>
+            <div class="special-sub">Honey Lavender Latte</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="scroll-indicator"><div class="scroll-dot"></div></div>
+  </section>
+
+  <!-- WHY CRUMB -->
+  <section class="why-section">
+    <div class="blob-tl"></div><div class="blob-br"></div>
+    <div class="section-inner">
+      <div class="why-grid">
+        <div>
+          <span class="eyebrow">Why Crumb?</span>
+          <h2 class="section-title serif">More Than Just a Café —<br><span class="green">It's Community</span></h2>
+          <p class="section-body">Crumb Café is Swarthmore College's beloved late-night destination, proudly student-run since its founding. We're not just serving coffee and snacks — we're creating opportunities for students to earn income, build skills, and be part of something special on campus.</p>
+          <p class="section-body">Whether you're cramming for finals, catching up with friends, or just need a warm spot to think, Crumb is your place. Every purchase supports student employment and keeps this unique campus tradition alive.</p>
+        </div>
+        <div class="squirrel-wrap">
+          <div class="squirrel-circle"></div>
+          <svg viewBox="0 0 200 200" style="width:260px;height:260px;position:relative;">
+            <path d="M42 102 Q22 62 42 42 Q62 22 82 42 Q92 52 87 72 Q82 92 62 102 Q52 107 47 102" fill="#8B6914" stroke="#5C3D2E" stroke-width="2"/>
+            <path d="M47 97 Q32 72 47 52 Q62 37 72 52 Q77 62 74 77" fill="#C4A456"/>
+            <ellipse cx="100" cy="132" rx="36" ry="46" fill="#C4946C" stroke="#5C3D2E" stroke-width="2"/>
+            <ellipse cx="100" cy="137" rx="26" ry="31" fill="#F5EFE6"/>
+            <circle cx="100" cy="77" r="36" fill="#C4946C" stroke="#5C3D2E" stroke-width="2"/>
+            <ellipse cx="100" cy="87" rx="21" ry="19" fill="#F5EFE6"/>
+            <ellipse cx="78" cy="87" rx="13" ry="11" fill="#E8D5C4"/>
+            <ellipse cx="122" cy="87" rx="13" ry="11" fill="#E8D5C4"/>
+            <ellipse cx="72" cy="52" rx="8" ry="13" fill="#C4946C" stroke="#5C3D2E" stroke-width="2"/>
+            <ellipse cx="128" cy="52" rx="8" ry="13" fill="#C4946C" stroke="#5C3D2E" stroke-width="2"/>
+            <path d="M100 47 Q102 57 100 67" stroke="#8B6914" stroke-width="4" fill="none" stroke-linecap="round"/>
+            <path d="M85 74 Q90 70 95 74" stroke="#5C3D2E" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <path d="M105 74 Q110 70 115 74" stroke="#5C3D2E" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <ellipse cx="100" cy="90" rx="4" ry="3" fill="#5C3D2E"/>
+            <path d="M92 97 Q100 104 108 97" stroke="#5C3D2E" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <path d="M70 122 Q50 132 55 152 Q58 162 70 157 L85 142" fill="#C4946C" stroke="#5C3D2E" stroke-width="2"/>
+            <path d="M130 122 Q150 132 145 152 Q142 162 130 157 L115 142" fill="#C4946C" stroke="#5C3D2E" stroke-width="2"/>
+            <rect x="75" y="142" width="50" height="38" rx="5" fill="#E8E8E8" stroke="#5C3D2E" stroke-width="2"/>
+            <rect x="80" y="147" width="40" height="10" rx="2" fill="#5C3D2E"/>
+            <path d="M125 152 Q140 152 140 167 Q140 177 125 177" stroke="#5C3D2E" stroke-width="3" fill="none"/>
+            <path d="M88 137 Q85 127 90 122" stroke="#8A9E86" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.6"/>
+            <path d="M100 134 Q97 122 102 117" stroke="#8A9E86" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.6"/>
+            <path d="M112 137 Q109 127 114 122" stroke="#8A9E86" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.6"/>
+            <ellipse cx="85" cy="177" rx="13" ry="6" fill="#C4946C" stroke="#5C3D2E" stroke-width="2"/>
+            <ellipse cx="115" cy="177" rx="13" ry="6" fill="#C4946C" stroke="#5C3D2E" stroke-width="2"/>
+          </svg>
+        </div>
+      </div>
+      <div class="feature-cards">
+        <div class="feature-card"><div class="feature-icon">💚</div><div class="feature-title serif">Student Run</div><div class="feature-desc">Every latte, every late-night snack — made by your fellow students who need the gig as much as you need the caffeine.</div></div>
+        <div class="feature-card"><div class="feature-icon">🌙</div><div class="feature-title serif">Open Late</div><div class="feature-desc">When the library closes and the cravings hit, we're here. Because good ideas (and hunger) don't follow a 9-to-5.</div></div>
+        <div class="feature-card"><div class="feature-icon">🏠</div><div class="feature-title serif">Campus Home</div><div class="feature-desc">More than a café — it's where study breaks become friendships and late nights become memories.</div></div>
+        <div class="feature-card"><div class="feature-icon">🐿️</div><div class="feature-title serif">Made with Love</div><div class="feature-desc">Every crumb counts. We put care into everything we make, because that's what community tastes like.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DAILY SPECIAL -->
+  <section class="special-section">
+    <div class="special-card">
+      <div class="spinning-badge">
+        <div class="spinning-ring"></div>
+        <div class="badge-star">✦</div>
+        <div class="badge-text-top">TODAY'S</div>
+        <div class="badge-text-main serif">Special</div>
+      </div>
+      <div class="special-info">
+        <h3 class="special-name serif">Honey Lavender Latte + Grilled Cheese Combo</h3>
+        <p class="special-desc">The perfect late-night pairing — floral sweetness meets melty, buttery comfort.</p>
+        <div class="special-pricing">
+          <span class="price-main serif">$7.50</span>
+          <span class="price-old">$11.25</span>
+          <span class="price-badge">Save 33%</span>
+        </div>
+      </div>
+      <button class="special-btn" onclick="showPage('menu')">Order Now →</button>
+    </div>
+  </section>
+
+  <!-- HOURS & CONTACT -->
+  <section class="hours-section">
+    <div class="section-inner">
+      <div class="hours-header">
+        <span class="eyebrow" style="color:var(--terracotta);">Hours & Contact</span>
+        <h2 class="hours-title serif">When to Find Us</h2>
+      </div>
+      <div class="hours-grid">
+        <div class="hours-card">
+          <div class="hours-card-header">
+            <div class="hours-icon-box">🕘</div>
+            <div><div class="hours-card-title serif">Operating Hours</div><div class="hours-card-sub">Sunday through Thursday</div></div>
+          </div>
+          <div class="time-row"><span class="time-label">Opening Time</span><span class="time-val serif">9:00 PM</span></div>
+          <div class="time-row"><span class="time-label">Closing Time</span><span class="time-val serif">1:00 AM</span></div>
+          <div class="hours-note">
+            <span class="note-icon">⚠️</span>
+            <p class="note-text">Hours may vary due to staffing availability, academic events, holidays, or special circumstances. Check our social media for real-time updates!</p>
+          </div>
+        </div>
+        <div class="contact-cards">
+          <a href="/cdn-cgi/l/email-protection#98fbeaedf5fab6f5f9f6f9fffdead8ebeff9eaecf0f5f7eafdb6fdfced" class="contact-card">
+            <div class="contact-icon-box">☕</div>
+            <div><div class="contact-role serif">General Manager</div><div class="contact-email"><span class="__cf_email__" data-cfemail="432031362e216d2e222d222426310330342231372b2e2c31266d262736">[email&#160;protected]</span></div></div>
+            <span class="contact-arrow">→</span>
+          </a>
+          <a href="/cdn-cgi/l/email-protection#066574736b6428626f7463657269744675716774726e6b69746328636273" class="contact-card">
+            <div class="contact-icon-box">✉️</div>
+            <div><div class="contact-role serif">Student Director</div><div class="contact-email"><span class="__cf_email__" data-cfemail="d1b2a3a4bcb3ffb5b8a3b4b2a5bea391a2a6b0a3a5b9bcbea3b4ffb4b5a4">[email&#160;protected]</span></div></div>
+            <span class="contact-arrow">→</span>
+          </a>
+          <a href="/cdn-cgi/l/email-protection#315243445c531f575454555350525a714246504345595c5e43541f545544" class="contact-card">
+            <div class="contact-icon-box">💬</div>
+            <div><div class="contact-role serif">Feedback & Concerns</div><div class="contact-email"><span class="__cf_email__" data-cfemail="3f5c4d4a525d11595a5a5b5d5e5c547f4c485e4d4b5752504d5a115a5b4a">[email&#160;protected]</span></div></div>
+            <span class="contact-arrow">→</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUOTE -->
+  <section class="quote-section">
+    <div class="quote-wrap">
+      <div class="quote-mark">"</div>
+      <blockquote class="quote-text serif">Every crumb<br><span class="green">tells a story.</span></blockquote>
+      <div class="quote-squirrel">🐿️</div>
+      <div class="quote-line"></div>
+    </div>
+  </section>
+
+  <!-- HOW TO ORDER -->
+  <section class="how-section">
+    <div class="how-header">
+      <span class="eyebrow">Simple & Easy</span>
+      <h2 class="section-title serif" style="margin-bottom:0;">How to Order</h2>
+      <p class="how-sub">Getting your late-night cravings satisfied is easier than acing your finals</p>
+    </div>
+    <div class="section-inner">
+      <div class="steps-grid">
+        <div class="steps-connector"></div>
+        <div class="step-card">
+          <div class="step-icon-wrap"><div class="step-icon-box">🔍</div><div class="step-num">01</div></div>
+          <div class="step-title serif">Browse the Menu</div>
+          <div class="step-desc">Explore our selection of drinks, appetizers, entrées, combos, and desserts online.</div>
+        </div>
+        <div class="step-card">
+          <div class="step-icon-wrap"><div class="step-icon-box">⚙️</div><div class="step-num">02</div></div>
+          <div class="step-title serif">Customize Your Order</div>
+          <div class="step-desc">Add special instructions — extra cheese, oat milk, no onions — we've got you covered.</div>
+        </div>
+        <div class="step-card">
+          <div class="step-icon-wrap"><div class="step-icon-box">📤</div><div class="step-num">03</div></div>
+          <div class="step-title serif">Submit Your Order</div>
+          <div class="step-desc">Send your order through our simple order page. No account needed!</div>
+        </div>
+        <div class="step-card">
+          <div class="step-icon-wrap"><div class="step-icon-box">📍</div><div class="step-num">04</div></div>
+          <div class="step-title serif">Head to Crumb</div>
+          <div class="step-desc">Make your way to Crumb Café and pay in person when you arrive.</div>
+        </div>
+        <div class="step-card">
+          <div class="step-icon-wrap"><div class="step-icon-box">📦</div><div class="step-num">05</div></div>
+          <div class="step-title serif">Pick Up & Enjoy</div>
+          <div class="step-desc">Grab your order from the counter and enjoy your late-night treat!</div>
+        </div>
+      </div>
+      <div class="how-cta">
+        <button class="btn-green" onclick="showPage('menu')">Start Your Order →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand">
+          <svg width="36" height="36" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#C8785A"/><path d="M30 55 Q25 45 30 35 Q35 25 45 30 L45 35 Q40 35 38 40 Q36 48 40 55 Z" fill="#5C3D2E"/><circle cx="42" cy="42" r="3.5" fill="#F5EFE6"/><path d="M45 50 Q50 45 55 48 L72 45 Q82 42 86 51 Q89 59 80 63 L55 59 Q50 61 45 56 Z" fill="#F5EFE6"/><path d="M25 60 Q14 72 20 86 Q26 96 36 91 Q46 86 41 71 Q38 62 30 58 Z" fill="#5C3D2E"/></svg>
+          <span class="footer-brand-name serif">Crumb Café</span>
+        </div>
+        <p class="footer-desc">Your cozy late-night spot at Swarthmore College. Student-run, community-loved.</p>
+      </div>
+      <div>
+        <div class="footer-heading serif">Quick Links</div>
+        <a href="#" class="footer-link" onclick="showPage('home');return false;">Home</a>
+        <a href="#" class="footer-link" onclick="showPage('menu');return false;">Menu</a>
+        <a href="#" class="footer-link" onclick="showPage('order');return false;">Order</a>
+      </div>
+      <div>
+        <div class="footer-heading serif">Hours</div>
+        <div class="footer-hours-day">Sunday – Thursday</div>
+        <div class="footer-hours-time">9:00 PM – 1:00 AM</div>
+      </div>
+    </div>
+    <div class="footer-bottom">© 2026 Crumb Café at Swarthmore College. Made with 🐿️ by students.</div>
+  </footer>
+
+</div><!-- end home page -->
+
+<!-- ══════════════════════════════════════ MENU PAGE ══════════════════════════════════════ -->
+<div class="page" id="page-menu">
+  <div class="menu-hero">
+    <div class="menu-hero-eyebrow">What We're Serving</div>
+    <h1 class="menu-hero-title serif">Our Menu</h1>
+    <p class="menu-hero-sub">From cozy drinks to satisfying bites — find your late-night favorite</p>
+  </div>
+  <div class="menu-content">
+    <!-- HOT RIGHT NOW CAROUSEL -->
+    <div style="margin-bottom:40px;">
+      <div class="carousel-header">
+        <div class="carousel-title-wrap">
+          <div class="flame-box">🔥</div>
+          <h2 class="carousel-title serif">Hot Right Now</h2>
+        </div>
+        <div class="carousel-arrows">
+          <button class="arrow-btn" onclick="scrollCarousel(-1)">‹</button>
+          <button class="arrow-btn" onclick="scrollCarousel(1)">›</button>
+        </div>
+      </div>
+      <div class="carousel-track" id="carousel-track"></div>
+    </div>
+
+    <!-- CATEGORY TABS -->
+    <div class="cat-tabs-wrap">
+      <div class="cat-tabs" id="cat-tabs"></div>
+    </div>
+
+    <!-- MENU SECTIONS -->
+    <div id="menu-sections"></div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand">
+          <svg width="36" height="36" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#C8785A"/><path d="M30 55 Q25 45 30 35 Q35 25 45 30 L45 35 Q40 35 38 40 Q36 48 40 55 Z" fill="#5C3D2E"/><circle cx="42" cy="42" r="3.5" fill="#F5EFE6"/><path d="M45 50 Q50 45 55 48 L72 45 Q82 42 86 51 Q89 59 80 63 L55 59 Q50 61 45 56 Z" fill="#F5EFE6"/><path d="M25 60 Q14 72 20 86 Q26 96 36 91 Q46 86 41 71 Q38 62 30 58 Z" fill="#5C3D2E"/></svg>
+          <span class="footer-brand-name serif">Crumb Café</span>
+        </div>
+        <p class="footer-desc">Your cozy late-night spot at Swarthmore College. Student-run, community-loved.</p>
+      </div>
+      <div>
+        <div class="footer-heading serif">Quick Links</div>
+        <a href="#" class="footer-link" onclick="showPage('home');return false;">Home</a>
+        <a href="#" class="footer-link" onclick="showPage('menu');return false;">Menu</a>
+        <a href="#" class="footer-link" onclick="showPage('order');return false;">Order</a>
+      </div>
+      <div>
+        <div class="footer-heading serif">Hours</div>
+        <div class="footer-hours-day">Sunday – Thursday</div>
+        <div class="footer-hours-time">9:00 PM – 1:00 AM</div>
+      </div>
+    </div>
+    <div class="footer-bottom">© 2026 Crumb Café at Swarthmore College. Made with 🐿️ by students.</div>
+  </footer>
+</div><!-- end menu page -->
+
+<!-- ══════════════════════════════════════ ORDER PAGE ══════════════════════════════════════ -->
+<div class="page" id="page-order">
+  <div class="order-hero">
+    <h1 class="order-hero-title serif">Order & Queue</h1>
+    <p class="order-hero-sub">Place your order and track the queue</p>
+  </div>
+  <div class="order-content">
+    <div class="tab-switch">
+      <button class="tab-btn active" id="tab-place" onclick="switchTab('place')">Place Order</button>
+      <button class="tab-btn" id="tab-staff" onclick="switchTab('staff')">Staff View</button>
+    </div>
+
+    <!-- PLACE ORDER TAB -->
+    <div class="tab-panel active" id="panel-place">
+      <div id="place-order-content"></div>
+    </div>
+
+    <!-- STAFF TAB -->
+    <div class="tab-panel" id="panel-staff">
+      <div id="staff-content"></div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand">
+          <svg width="36" height="36" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#C8785A"/><path d="M30 55 Q25 45 30 35 Q35 25 45 30 L45 35 Q40 35 38 40 Q36 48 40 55 Z" fill="#5C3D2E"/><circle cx="42" cy="42" r="3.5" fill="#F5EFE6"/><path d="M45 50 Q50 45 55 48 L72 45 Q82 42 86 51 Q89 59 80 63 L55 59 Q50 61 45 56 Z" fill="#F5EFE6"/><path d="M25 60 Q14 72 20 86 Q26 96 36 91 Q46 86 41 71 Q38 62 30 58 Z" fill="#5C3D2E"/></svg>
+          <span class="footer-brand-name serif">Crumb Café</span>
+        </div>
+        <p class="footer-desc">Your cozy late-night spot at Swarthmore College. Student-run, community-loved.</p>
+      </div>
+      <div>
+        <div class="footer-heading serif">Quick Links</div>
+        <a href="#" class="footer-link" onclick="showPage('home');return false;">Home</a>
+        <a href="#" class="footer-link" onclick="showPage('menu');return false;">Menu</a>
+        <a href="#" class="footer-link" onclick="showPage('order');return false;">Order</a>
+      </div>
+      <div>
+        <div class="footer-heading serif">Hours</div>
+        <div class="footer-hours-day">Sunday – Thursday</div>
+        <div class="footer-hours-time">9:00 PM – 1:00 AM</div>
+      </div>
+    </div>
+    <div class="footer-bottom">© 2026 Crumb Café at Swarthmore College. Made with 🐿️ by students.</div>
+  </footer>
+</div><!-- end order page -->
+
+<!-- ══════════════════════════════════════ MODAL ══════════════════════════════════════ -->
+<div class="modal-backdrop" id="item-modal" onclick="handleModalBackdrop(event)">
+  <div class="modal-panel">
+    <div class="modal-img">
+      <img id="modal-img" src="" alt=""/>
+      <div class="modal-img-overlay"></div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+      <div id="modal-item-name" class="modal-item-name serif"></div>
+    </div>
+    <div class="modal-body">
+      <div class="modal-price-row">
+        <span class="modal-price serif" id="modal-price"></span>
+        <div class="qty-row">
+          <button class="qty-btn" onclick="changeQty(-1)">−</button>
+          <span class="qty-num" id="qty-display">1</span>
+          <button class="qty-btn" onclick="changeQty(1)">+</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="modal-label">Customization Notes</label>
+        <textarea class="modal-textarea" id="modal-notes" rows="3" placeholder="No onions, extra sauce, oat milk please..."></textarea>
+      </div>
+      <button class="modal-add-btn" id="modal-add-btn" onclick="addToCart()">Add to Order — $0.00</button>
+    </div>
+  </div>
+</div>
+
+<!-- CART BUBBLE -->
+<div id="cart-bubble" onclick="showPage('order')">
+  <div class="bubble-icon-wrap">
+    🛒
+    <span class="bubble-badge" id="bubble-count">0</span>
+  </div>
+  <div class="bubble-divider"></div>
+  <span class="bubble-total serif" id="bubble-total">$0.00</span>
+</div>
+
+<!-- SUCCESS TOAST -->
+<div id="success-toast">
+  <span class="toast-check">✓</span>
+  <div>
+    <div class="toast-title">Order submitted!</div>
+    <div class="toast-sub" id="toast-sub-text"></div>
+  </div>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// ══════════════════════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════════════════════
+const MENU = {
+  drinks: [
+    {id:'d1',name:'Honey Lavender Latte',desc:'Smooth espresso with honey, lavender syrup, and steamed milk',price:5.50,img:'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=400&q=80'},
+    {id:'d2',name:'Classic Drip Coffee',desc:'Fresh brewed house blend, bold and smooth',price:3.00,img:'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=400&q=80'},
+    {id:'d3',name:'Matcha Oat Milk Latte',desc:'Premium matcha whisked with creamy oat milk',price:5.75,img:'https://images.unsplash.com/photo-1536256263959-770b48d82b0a?w=400&q=80'},
+    {id:'d4',name:'Hot Chocolate with Whipped Cream',desc:'Rich cocoa topped with fluffy whipped cream',price:4.25,img:'https://images.unsplash.com/photo-1517578239113-b03992dcdd25?w=400&q=80'},
+    {id:'d5',name:'Chai Tea Latte',desc:'Spiced chai concentrate with steamed milk',price:4.75,img:'https://images.unsplash.com/photo-1571934811356-5cc061b6821f?w=400&q=80'},
+  ],
+  appetizers: [
+    {id:'a1',name:'Loaded Waffle Fries',desc:'Crispy fries with cheese, bacon, and green onions',price:4.50,img:'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=400&q=80'},
+    {id:'a2',name:'Mozzarella Sticks with Marinara',desc:'Golden fried cheese sticks with dipping sauce',price:5.00,img:'https://images.unsplash.com/photo-1531749668029-2db88e4276c7?w=400&q=80'},
+    {id:'a3',name:'Mini Quesadilla Bites',desc:'Cheesy quesadilla triangles with salsa',price:4.75,img:'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=400&q=80'},
+    {id:'a4',name:'Garlic Bread with Cheese',desc:'Toasted bread with garlic butter and melted mozzarella',price:3.50,img:'https://images.unsplash.com/photo-1619531038896-7e96e9e36aba?w=400&q=80'},
+    {id:'a5',name:'Soft Pretzel with Mustard',desc:'Warm, salted pretzel with honey mustard',price:4.00,img:'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400&q=80'},
+  ],
+  entrees: [
+    {id:'e1',name:'Classic Grilled Cheese',desc:'Buttery sourdough with melted cheddar and american',price:6.00,img:'https://images.unsplash.com/photo-1528736235302-52922df5c122?w=400&q=80'},
+    {id:'e2',name:'Mac & Cheese Bowl',desc:'Creamy shells with cheddar and breadcrumb topping',price:6.50,img:'https://images.unsplash.com/photo-1543339308-43e59d6b73a6?w=400&q=80'},
+    {id:'e3',name:'Veggie Wrap',desc:'Fresh veggies, hummus, and feta in a warm tortilla',price:7.00,img:'https://images.unsplash.com/photo-1626700051175-6818013e1d4f?w=400&q=80'},
+    {id:'e4',name:'Turkey & Avocado Panini',desc:'Sliced turkey, avocado, and swiss on pressed ciabatta',price:7.50,img:'https://images.unsplash.com/photo-1509722747041-616f39b57569?w=400&q=80'},
+    {id:'e5',name:'Ramen Noodle Bowl',desc:'Rich broth, noodles, soft egg, and green onions',price:7.00,img:'https://images.unsplash.com/photo-1569050467447-ce54b3bbc37d?w=400&q=80'},
+  ],
+  combos: [
+    {id:'c1',name:'Grilled Cheese + Fries + Drink',desc:'Classic combo: grilled cheese, waffle fries, and any drink',price:10.50,img:'https://images.unsplash.com/photo-1528736235302-52922df5c122?w=400&q=80'},
+    {id:'c2',name:'Panini + Chips + Latte',desc:'Your favorite panini with chips and a hot latte',price:11.00,img:'https://images.unsplash.com/photo-1509722747041-616f39b57569?w=400&q=80'},
+    {id:'c3',name:'Mac Bowl + Mozzarella Sticks',desc:'Comfort food double — creamy mac paired with cheesy sticks',price:10.00,img:'https://images.unsplash.com/photo-1543339308-43e59d6b73a6?w=400&q=80'},
+    {id:'c4',name:'Ramen + Soft Pretzel',desc:'Warm ramen bowl with a salted soft pretzel on the side',price:10.50,img:'https://images.unsplash.com/photo-1569050467447-ce54b3bbc37d?w=400&q=80'},
+    {id:'c5',name:'Quesadilla Bites + Hot Chocolate',desc:'Cheesy bites with rich hot cocoa — perfect study fuel',price:8.75,img:'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=400&q=80'},
+  ],
+  desserts: [
+    {id:'ds1',name:'Warm Chocolate Chip Cookie',desc:'Fresh-baked, gooey, and perfectly golden',price:2.50,img:'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=400&q=80'},
+    {id:'ds2',name:'Brownie Bites (3 pack)',desc:'Fudgy chocolate brownies with a crackly top',price:3.50,img:'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=400&q=80'},
+    {id:'ds3',name:'Cinnamon Roll',desc:'Soft swirl of cinnamon sugar with cream cheese glaze',price:3.75,img:'https://images.unsplash.com/photo-1509365465985-25d11c17e812?w=400&q=80'},
+    {id:'ds4',name:'Banana Bread Slice',desc:'Moist, homestyle banana bread with walnuts',price:3.00,img:'https://images.unsplash.com/photo-1605286978633-2dec93ff88a2?w=400&q=80'},
+    {id:'ds5',name:'Rice Krispie Treat',desc:'Classic marshmallow cereal square',price:2.00,img:'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400&q=80'},
+  ]
+};
+
+const CATEGORIES = [
+  {id:'drinks',label:'☕ Drinks'},
+  {id:'appetizers',label:'🍟 Appetizers'},
+  {id:'entrees',label:'🥪 Entrées'},
+  {id:'combos',label:'🍱 Combos'},
+  {id:'desserts',label:'🍰 Desserts'},
+];
+
+const HOT_NOW = [
+  MENU.drinks[0], MENU.entrees[0], MENU.combos[0], MENU.desserts[0], MENU.appetizers[1]
+];
+
+// ══════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════
+let cart = JSON.parse(localStorage.getItem('crumbCart') || '[]');
+let orders = JSON.parse(localStorage.getItem('crumbOrders') || '[]');
+let currentItem = null;
+let qty = 1;
+
+// ══════════════════════════════════════════════════════════
+// LOADING SCREEN
+// ══════════════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  const bar = document.getElementById('prog-bar');
+  const sq = document.getElementById('prog-squirrel');
+  let p = 0;
+  const iv = setInterval(() => {
+    p = Math.min(p + 3, 100);
+    bar.style.width = p + '%';
+    sq.style.left = Math.min(p, 93) + '%';
+    if (p >= 100) {
+      clearInterval(iv);
+      setTimeout(() => {
+        document.getElementById('loading-screen').classList.add('hidden');
+      }, 300);
+    }
+  }, 18);
+  buildMenu();
+  updateCartBubble();
+});
+
+// ══════════════════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════════════════
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  document.querySelectorAll('.mobile-link').forEach(l => l.classList.remove('active'));
+  const page = document.getElementById('page-' + name);
+  page.classList.add('active');
+  page.classList.add('page-enter');
+  setTimeout(() => page.classList.remove('page-enter'), 500);
+  document.getElementById('nav-' + name)?.classList.add('active');
+  document.getElementById('mob-' + name)?.classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+  if (name === 'order') renderOrderPage();
+}
+
+function toggleMobile() {
+  document.getElementById('mobile-menu').classList.toggle('open');
+}
+
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 20);
+});
+
+// ══════════════════════════════════════════════════════════
+// BUILD MENU
+// ══════════════════════════════════════════════════════════
+function buildMenu() {
+  // carousel
+  const track = document.getElementById('carousel-track');
+  track.innerHTML = HOT_NOW.map(item => `
+    <div class="carousel-card" onclick="openModal('${item.id}')">
+      <div class="carousel-img-wrap">
+        <img src="${item.img}" alt="${item.name}" loading="lazy"/>
+        <div class="carousel-img-overlay"></div>
+        <div class="carousel-price">$${item.price.toFixed(2)}</div>
+      </div>
+      <div class="carousel-card-body">
+        <div class="carousel-card-name serif">${item.name}</div>
+        <div class="carousel-card-desc">${item.desc}</div>
+      </div>
+    </div>
+  `).join('');
+
+  // category tabs
+  const tabs = document.getElementById('cat-tabs');
+  tabs.innerHTML = CATEGORIES.map((c, i) => `
+    <button class="cat-tab ${i===0?'active':''}" id="tab-${c.id}" onclick="scrollToSection('${c.id}')">${c.label}</button>
+  `).join('');
+
+  // menu sections
+  const sections = document.getElementById('menu-sections');
+  sections.innerHTML = CATEGORIES.map(c => `
+    <div class="menu-section" id="section-${c.id}">
+      <h2 class="menu-section-title serif">${c.label}</h2>
+      <div class="menu-items-grid">
+        ${MENU[c.id].map(item => `
+          <div class="menu-item-card" onclick="openModal('${item.id}')">
+            <div class="menu-item-thumb"><img src="${item.img}" alt="${item.name}" loading="lazy" onerror="this.style.display='none';this.parentElement.style.background='var(--cream)'"/></div>
+            <div class="menu-item-info">
+              <div class="menu-item-name serif">${item.name}</div>
+              <div class="menu-item-desc">${item.desc || ''}</div>
+            </div>
+            <div class="menu-item-right">
+              <span class="menu-item-price">$${item.price.toFixed(2)}</span>
+              <button class="plus-btn">+</button>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+
+  // scroll spy
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const id = e.target.id.replace('section-','');
+        document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+        document.getElementById('tab-' + id)?.classList.add('active');
+      }
+    });
+  }, {threshold:0.3});
+  CATEGORIES.forEach(c => {
+    const el = document.getElementById('section-' + c.id);
+    if (el) observer.observe(el);
+  });
+}
+
+function scrollCarousel(dir) {
+  const t = document.getElementById('carousel-track');
+  t.scrollBy({left: dir * 320, behavior:'smooth'});
+}
+
+function scrollToSection(id) {
+  const el = document.getElementById('section-' + id);
+  if (el) {
+    const offset = el.getBoundingClientRect().top + window.scrollY - 150;
+    window.scrollTo({top: offset, behavior:'smooth'});
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+// MODAL
+// ══════════════════════════════════════════════════════════
+function findItem(id) {
+  for (const cat of Object.values(MENU)) {
+    const found = cat.find(i => i.id === id);
+    if (found) return found;
+  }
+}
+
+function openModal(id) {
+  currentItem = findItem(id);
+  if (!currentItem) return;
+  qty = 1;
+  document.getElementById('modal-img').src = currentItem.img;
+  document.getElementById('modal-img').alt = currentItem.name;
+  document.getElementById('modal-item-name').textContent = currentItem.name;
+  document.getElementById('modal-notes').value = '';
+  updateModalPrice();
+  document.getElementById('item-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('item-modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function handleModalBackdrop(e) {
+  if (e.target === document.getElementById('item-modal')) closeModal();
+}
+
+function changeQty(d) {
+  qty = Math.max(1, qty + d);
+  document.getElementById('qty-display').textContent = qty;
+  updateModalPrice();
+}
+
+function updateModalPrice() {
+  if (!currentItem) return;
+  const total = (currentItem.price * qty).toFixed(2);
+  document.getElementById('modal-price').textContent = '$' + total;
+  document.getElementById('modal-add-btn').textContent = `Add to Order — $${total}`;
+}
+
+function addToCart() {
+  if (!currentItem) return;
+  const notes = document.getElementById('modal-notes').value.trim();
+  const existing = cart.find(i => i.id === currentItem.id && i.notes === notes);
+  if (existing) {
+    existing.qty += qty;
+    existing.totalPrice = existing.price * existing.qty;
+  } else {
+    cart.push({...currentItem, qty, notes, totalPrice: currentItem.price * qty});
+  }
+  saveCart();
+  updateCartBubble();
+  closeModal();
+  // mini pulse animation on bubble
+  const bubble = document.getElementById('cart-bubble');
+  bubble.style.transform = 'scale(1.15)';
+  setTimeout(() => bubble.style.transform = '', 200);
+}
+
+// ══════════════════════════════════════════════════════════
+// CART BUBBLE
+// ══════════════════════════════════════════════════════════
+function saveCart() {
+  localStorage.setItem('crumbCart', JSON.stringify(cart));
+}
+
+function updateCartBubble() {
+  const bubble = document.getElementById('cart-bubble');
+  const count = cart.reduce((s, i) => s + i.qty, 0);
+  const total = cart.reduce((s, i) => s + i.totalPrice, 0);
+  document.getElementById('bubble-count').textContent = count;
+  document.getElementById('bubble-total').textContent = '$' + total.toFixed(2);
+  bubble.style.display = count > 0 ? 'flex' : 'none';
+}
+
+// ══════════════════════════════════════════════════════════
+// ORDER PAGE
+// ══════════════════════════════════════════════════════════
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  document.getElementById('panel-' + name).classList.add('active');
+  if (name === 'staff') renderStaffView();
+  else renderPlaceOrder();
+}
+
+function renderOrderPage() {
+  renderPlaceOrder();
+  renderStaffView();
+}
+
+function renderPlaceOrder() {
+  const el = document.getElementById('place-order-content');
+  if (cart.length === 0) {
+    el.innerHTML = `
+      <div class="empty-cart">
+        <div class="empty-squirrel">🐿️</div>
+        <div class="empty-title serif">Your cart is empty</div>
+        <div class="empty-sub">The squirrel is waiting for your order!</div>
+        <button class="btn-green" onclick="showPage('menu')" style="margin:0 auto;">← Browse Menu</button>
+      </div>`;
+    return;
+  }
+  const total = cart.reduce((s, i) => s + i.totalPrice, 0);
+  el.innerHTML = `
+    <div class="order-section-card">
+      <div class="order-section-head">🛍️ Your Order</div>
+      <div id="cart-items-list">
+        ${cart.map((item, i) => `
+          <div class="cart-item-row">
+            <div class="cart-item-thumb"><img src="${item.img}" alt="${item.name}"/></div>
+            <div class="cart-item-info">
+              <div class="cart-item-name serif">${item.name}</div>
+              ${item.notes ? `<div class="cart-item-note">Note: ${item.notes}</div>` : ''}
+              <div class="cart-item-price">$${item.totalPrice.toFixed(2)}</div>
+            </div>
+            <div class="cart-controls">
+              <button class="cart-qty-btn" onclick="updateCartQty(${i}, -1)">−</button>
+              <span class="cart-qty">${item.qty}</span>
+              <button class="cart-qty-btn" onclick="updateCartQty(${i}, 1)">+</button>
+              <button class="remove-btn" onclick="removeCartItem(${i})">✕</button>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+      <div class="order-total-row">
+        <span class="order-total-label">Total</span>
+        <span class="order-total-val serif">$${total.toFixed(2)}</span>
+      </div>
+    </div>
+    <div class="order-section-card">
+      <div class="order-section-head">👤 Your Details</div>
+      <div class="form-group">
+        <label class="form-label">Name *</label>
+        <input class="form-input" id="order-name" placeholder="What should we call you?" required/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Pickup Time</label>
+        <select class="form-select" id="order-pickup">
+          <option value="asap">ASAP</option>
+          <option value="15min">In 15 minutes</option>
+          <option value="30min">In 30 minutes</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Additional Notes</label>
+        <textarea class="form-input modal-textarea" id="order-notes" rows="3" placeholder="Anything else we should know?"></textarea>
+      </div>
+    </div>
+    <button class="submit-btn" onclick="submitOrder()">📤 Submit Order</button>
+  `;
+}
+
+function updateCartQty(index, delta) {
+  cart[index].qty = Math.max(0, cart[index].qty + delta);
+  if (cart[index].qty === 0) {
+    cart.splice(index, 1);
+  } else {
+    cart[index].totalPrice = cart[index].price * cart[index].qty;
+  }
+  saveCart();
+  updateCartBubble();
+  renderPlaceOrder();
+}
+
+function removeCartItem(index) {
+  cart.splice(index, 1);
+  saveCart();
+  updateCartBubble();
+  renderPlaceOrder();
+}
+
+function submitOrder() {
+  const name = document.getElementById('order-name')?.value?.trim();
+  if (!name) {
+    document.getElementById('order-name')?.focus();
+    return;
+  }
+  const order = {
+    id: Date.now(),
+    name,
+    pickup: document.getElementById('order-pickup')?.value,
+    notes: document.getElementById('order-notes')?.value?.trim(),
+    items: [...cart],
+    total: cart.reduce((s, i) => s + i.totalPrice, 0),
+    timestamp: new Date().toISOString(),
+    status: 'pending'
+  };
+  const existing = JSON.parse(localStorage.getItem('crumbOrders') || '[]');
+  existing.push(order);
+  localStorage.setItem('crumbOrders', JSON.stringify(existing));
+  orders = existing;
+  cart = [];
+  saveCart();
+  updateCartBubble();
+  showToast(name);
+  renderPlaceOrder();
+}
+
+function showToast(name) {
+  const toast = document.getElementById('success-toast');
+  document.getElementById('toast-sub-text').textContent = `Thanks ${name}! Head to Crumb Café and pay when you arrive.`;
+  toast.style.display = 'flex';
+  setTimeout(() => toast.style.display = 'none', 5000);
+}
+
+function renderStaffView() {
+  const el = document.getElementById('staff-content');
+  const all = JSON.parse(localStorage.getItem('crumbOrders') || '[]');
+  orders = all;
+  const pending = orders.filter(o => o.status === 'pending');
+  const done = orders.filter(o => o.status === 'completed');
+
+  let html = `<div class="queue-header serif">🕐 Active Orders <span class="queue-count">(${pending.length})</span></div>`;
+
+  if (pending.length === 0) {
+    html += `<div class="empty-queue"><div style="font-size:3rem;margin-bottom:12px;">🐿️</div><div class="serif" style="font-size:1.2rem;color:var(--espresso);margin-bottom:6px;">No orders yet!</div><div style="color:var(--sage);font-size:0.9rem;">The squirrel is waiting... 🐿️</div></div>`;
+  } else {
+    html += `<div class="order-cards-grid">${pending.map(order => `
+      <div class="order-card">
+        <div class="order-card-header">
+          <div>
+            <div class="order-card-name serif">${order.name}</div>
+            <div class="order-card-time">${new Date(order.timestamp).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}${order.pickup !== 'asap' ? ' · ' + order.pickup : ''}</div>
+          </div>
+          <div class="order-price-badge">$${order.total.toFixed(2)}</div>
+        </div>
+        <div style="margin-bottom:12px;">
+          ${order.items.map(item => `
+            <div class="order-item-row">
+              <span class="order-item-qty">${item.qty}</span>
+              <span class="order-item-name">${item.name}</span>
+              ${item.notes ? `<span class="order-item-note">(${item.notes})</span>` : ''}
+            </div>
+          `).join('')}
+        </div>
+        ${order.notes ? `<div class="order-extra-note">"${order.notes}"</div>` : ''}
+        <button class="mark-complete-btn" onclick="markComplete(${order.id})">✓ Mark as Complete</button>
+      </div>
+    `).join('')}</div>`;
+  }
+
+  if (done.length > 0) {
+    html += `<div class="queue-header serif" style="margin-top:32px;">✅ Completed <span class="queue-count">(${done.length})</span></div>`;
+    html += `<div class="completed-cards">${done.slice(0,6).map(o => `
+      <div class="completed-card">
+        <span class="completed-check">✓</span>
+        <div class="completed-name serif">${o.name}</div>
+        <div class="completed-sub">${o.items.length} items · $${o.total.toFixed(2)}</div>
+      </div>
+    `).join('')}</div>`;
+  }
+
+  el.innerHTML = html;
+}
+
+function markComplete(id) {
+  const all = JSON.parse(localStorage.getItem('crumbOrders') || '[]');
+  const idx = all.findIndex(o => o.id === id);
+  if (idx >= 0) { all[idx].status = 'completed'; }
+  localStorage.setItem('crumbOrders', JSON.stringify(all));
+  orders = all;
+  renderStaffView();
+}
+</script>
+</body>
+</html>
