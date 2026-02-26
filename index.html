@@ -336,14 +336,7 @@ footer::before{content:'🐿️';position:absolute;font-size:12rem;opacity:0.04;
 .topping-check-label input{display:none;}
 .topping-sold-badge{font-size:0.7rem;background:rgba(220,53,69,0.15);color:#dc3545;border:1px solid rgba(220,53,69,0.3);border-radius:999px;padding:1px 6px;margin-left:auto;}
 
-/* ADMIN 86 BUTTON — small link under selects */
-.admin-86-link{
-  display:inline-flex;align-items:center;gap:4px;margin-top:5px;
-  background:none;border:none;
-  font-family:'Caveat',cursive;font-size:0.95rem;
-  color:var(--brown4);cursor:pointer;
-  text-decoration:underline;padding:0;
-}
+.admin-86-link{display:inline-flex;align-items:center;gap:4px;margin-top:5px;background:none;border:none;font-family:'Caveat',cursive;font-size:0.95rem;color:var(--brown4);cursor:pointer;text-decoration:underline;padding:0;}
 .admin-86-link:hover{color:var(--accent);}
 
 /* MENU CLOSED OVERLAY */
@@ -356,7 +349,6 @@ footer::before{content:'🐿️';position:absolute;font-size:12rem;opacity:0.04;
 .overlay-admin-btn{margin-top:24px;background:rgba(253,246,236,0.1);border:2px solid rgba(253,246,236,0.2);color:rgba(253,246,236,0.5);padding:10px 22px;border-radius:999px;font-family:'Fredoka One',cursive;font-size:0.85rem;cursor:pointer;transition:all 0.25s;}
 .overlay-admin-btn:hover{background:rgba(253,246,236,0.2);color:var(--cream);}
 
-/* MENU TOGGLE BTN */
 #menu-toggle-btn{position:fixed;bottom:28px;left:28px;z-index:110;width:52px;height:52px;border-radius:50%;border:3px solid var(--brown5);cursor:pointer;background:var(--brown2);color:var(--cream);font-size:1.3rem;box-shadow:4px 4px 0 var(--brown5);display:none;align-items:center;justify-content:center;transition:all 0.2s;}
 #menu-toggle-btn:hover{background:var(--accent);transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--brown5);}
 
@@ -376,7 +368,6 @@ footer::before{content:'🐿️';position:absolute;font-size:12rem;opacity:0.04;
 .admin-cancel-btn{width:100%;background:transparent;color:var(--brown5);border:none;cursor:pointer;padding:10px;font-family:'Patrick Hand',cursive;font-size:0.95rem;transition:color 0.2s;}
 .admin-cancel-btn:hover{color:var(--brown2);}
 
-/* 86 OPTION ROWS inside admin panel */
 .option-toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:12px;margin-bottom:8px;border:2px solid;}
 .option-toggle-row.available{background:rgba(59,130,80,0.06);border-color:rgba(59,130,80,0.25);}
 .option-toggle-row.eighty-six{background:rgba(220,53,69,0.08);border-color:rgba(220,53,69,0.3);}
@@ -451,7 +442,6 @@ footer::before{content:'🐿️';position:absolute;font-size:12rem;opacity:0.04;
 .order-item-qty{width:20px;height:20px;background:var(--brown2);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:700;flex-shrink:0;margin-top:1px;}
 .order-item-name{font-family:'Patrick Hand',cursive;color:var(--brown5);font-size:0.9rem;}
 .order-item-customizations{font-family:'Patrick Hand',cursive;color:#888;font-size:0.78rem;font-style:italic;line-height:1.4;}
-.order-item-note{font-family:'Patrick Hand',cursive;color:#aaa;font-size:0.74rem;font-style:italic;}
 .order-extra-note{background:var(--light);border-radius:10px;padding:8px 11px;font-family:'Patrick Hand',cursive;color:#999;font-size:0.82rem;font-style:italic;margin-bottom:12px;}
 .mark-complete-btn{width:100%;background:var(--brown2);color:white;border:2px solid var(--brown5);cursor:pointer;padding:10px;border-radius:10px;font-family:'Fredoka One',cursive;font-size:0.88rem;box-shadow:3px 3px 0 var(--brown5);display:flex;align-items:center;justify-content:center;gap:5px;transition:all 0.2s;}
 .mark-complete-btn:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--brown5);}
@@ -492,6 +482,45 @@ footer::before{content:'🐿️';position:absolute;font-size:12rem;opacity:0.04;
 </style>
 </head>
 <body>
+
+<!-- ═══ FIREBASE SDK (module) ═══ -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import {
+    getFirestore, doc, setDoc, getDoc, onSnapshot,
+    collection, addDoc, updateDoc, query, orderBy, deleteDoc
+  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCc4pJOojNG_cfYcC9R8LYvMV-XGiVONgk",
+    authDomain: "crumb-cafe.firebaseapp.com",
+    projectId: "crumb-cafe",
+    storageBucket: "crumb-cafe.firebasestorage.app",
+    messagingSenderId: "635163863072",
+    appId: "1:635163863072:web:38393e4f5b91b4ebe83445",
+    measurementId: "G-PNJEZ5WEQC"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getFirestore(app);
+
+  // Expose to global scope so the main script can use them
+  window._db         = db;
+  window._fsDoc      = doc;
+  window._fsSet      = setDoc;
+  window._fsGet      = getDoc;
+  window._fsUpdate   = updateDoc;
+  window._fsOnSnap   = onSnapshot;
+  window._fsColl     = collection;
+  window._fsAdd      = addDoc;
+  window._fsQuery    = query;
+  window._fsOrderBy  = orderBy;
+  window._fsDelete   = deleteDoc;
+
+  // Signal that Firebase is ready
+  window._firebaseReady = true;
+  window.dispatchEvent(new Event('firebaseReady'));
+</script>
 
 <div id="loading-screen">
   <span class="load-sq">🐿️</span>
@@ -623,8 +652,6 @@ footer::before{content:'🐿️';position:absolute;font-size:12rem;opacity:0.04;
   <section class="quote-section">
     <div class="quote-squirrel-bg">🐿️</div>
     <div style="max-width:750px;margin:0 auto;position:relative;">
-      <div style="position:absolute;top:-20px;left:5%;font-size:1.5rem;animation:floatBob 4s ease-in-out infinite;opacity:0.3;">✦</div>
-      <div style="position:absolute;top:10px;right:8%;font-size:1rem;animation:floatBob 3s ease-in-out infinite 1s;opacity:0.25;">✦</div>
       <blockquote class="quote-text">Every crumb<br><span class="accent">tells a story.</span></blockquote>
       <div class="quote-accent-line"><div class="quote-line"></div><div class="quote-acorn">🌰</div><div class="quote-acorn" style="animation-delay:0.5s;">🐿️</div><div class="quote-acorn" style="animation-delay:1s;">🌰</div><div class="quote-line"></div></div>
     </div>
@@ -750,9 +777,9 @@ footer::before{content:'🐿️';position:absolute;font-size:12rem;opacity:0.04;
 <!-- ADMIN MODAL -->
 <div id="admin-modal-backdrop" onclick="handleAdminBackdrop(event)">
   <div class="admin-panel" id="admin-panel-content">
-    <div class="admin-panel-icon" id="admin-icon">🔐</div>
-    <div class="admin-panel-title" id="admin-title">Admin Access</div>
-    <div class="admin-panel-sub" id="admin-sub">Enter the admin password to continue.</div>
+    <div class="admin-panel-icon">🔐</div>
+    <div class="admin-panel-title">Admin Access</div>
+    <div class="admin-panel-sub">Enter the admin password to continue.</div>
     <input class="admin-pw-input" type="password" id="admin-pw-input" placeholder="Enter password..." onkeydown="if(event.key==='Enter')submitAdminPw()"/>
     <div class="admin-error-msg" id="admin-error"></div>
     <button class="admin-submit-btn" onclick="submitAdminPw()">Confirm ✓</button>
@@ -817,15 +844,109 @@ const CATEGORIES = [
 const HOT_NOW_IDS = ['en1','ap5','co1','ds2','dr5'];
 
 /* ═══════════════════════════════════════════════════════
-   STATE
+   STATE  (now loaded from Firebase, not localStorage)
 ═══════════════════════════════════════════════════════ */
-let cart           = JSON.parse(localStorage.getItem('crumbCart')            || '[]');
-let soldOutItems   = JSON.parse(localStorage.getItem('crumbSoldOut')         || '[]');
-let soldOutOptions = JSON.parse(localStorage.getItem('crumbSoldOutOptions')  || '{}');
-let menuClosed     = JSON.parse(localStorage.getItem('crumbMenuClosed')      || 'false');
+let cart           = JSON.parse(localStorage.getItem('crumbCart') || '[]');
+let soldOutItems   = [];
+let soldOutOptions = {};
+let menuClosed     = false;
 let currentItem    = null;
 let qty            = 1;
 let adminCallback  = null;
+let _ordersUnsub   = null;   // Firestore listener handle
+
+/* ═══════════════════════════════════════════════════════
+   FIREBASE HELPERS  (wait for module to be ready)
+═══════════════════════════════════════════════════════ */
+function waitForFirebase(fn){
+  if(window._firebaseReady) fn();
+  else window.addEventListener('firebaseReady', fn, {once:true});
+}
+
+/* ─── Settings (sold-out + menu open/closed) ─── */
+async function loadSettings(){
+  try {
+    const snap = await window._fsGet(window._fsDoc(window._db,'settings','main'));
+    if(snap.exists()){
+      const d = snap.data();
+      soldOutItems   = d.soldOutItems   || [];
+      soldOutOptions = d.soldOutOptions || {};
+      menuClosed     = d.menuClosed     || false;
+    }
+  } catch(e){ console.warn('loadSettings error',e); }
+  applyMenuClosedState();
+  buildMenu();
+}
+
+async function saveSettings(){
+  try {
+    await window._fsSet(window._fsDoc(window._db,'settings','main'),{
+      soldOutItems, soldOutOptions, menuClosed
+    });
+  } catch(e){ console.warn('saveSettings error',e); }
+}
+
+function listenToSettings(){
+  window._fsOnSnap(window._fsDoc(window._db,'settings','main'), snap => {
+    if(snap.exists()){
+      const d = snap.data();
+      soldOutItems   = d.soldOutItems   || [];
+      soldOutOptions = d.soldOutOptions || {};
+      menuClosed     = d.menuClosed     || false;
+      applyMenuClosedState();
+      buildMenu();
+    }
+  });
+}
+
+/* ─── Orders ─── */
+function listenToOrders(){
+  if(_ordersUnsub) _ordersUnsub();
+  const q = window._fsQuery(window._fsColl(window._db,'orders'), window._fsOrderBy('timestamp','asc'));
+  _ordersUnsub = window._fsOnSnap(q, snapshot => {
+    window._allOrders = snapshot.docs.map(d => ({...d.data(), _docId: d.id}));
+    renderStaffView();
+    if(document.getElementById('panel-place').classList.contains('active')) renderPlaceOrder();
+  });
+}
+
+async function submitOrder(){
+  const name = document.getElementById('order-name')?.value?.trim();
+  if(!name){ document.getElementById('order-name')?.focus(); return; }
+  const order = {
+    name,
+    pickup: document.getElementById('order-pickup')?.value,
+    notes:  document.getElementById('order-notes')?.value?.trim() || '',
+    items:  cart.map(i=>({
+      id:i.id, name:i.name, qty:i.qty,
+      price:i.price, totalPrice:i.totalPrice,
+      customStr:i.customStr||'', img:i.img
+    })),
+    total:  cart.reduce((s,i)=>s+i.totalPrice,0),
+    timestamp: new Date().toISOString(),
+    status: 'pending'
+  };
+  try {
+    await window._fsAdd(window._fsColl(window._db,'orders'), order);
+    cart=[]; saveCart(); updateCartBubble(); showToast(name); renderPlaceOrder();
+  } catch(e){
+    console.error('submitOrder error',e);
+    alert('Could not submit order. Please try again.');
+  }
+}
+
+async function markComplete(docId){
+  await window._fsUpdate(window._fsDoc(window._db,'orders',docId),{status:'completed'});
+}
+
+async function _cancelOrder(docId){
+  await window._fsUpdate(window._fsDoc(window._db,'orders',docId),{status:'canceled'});
+}
+
+async function _clearByStatus(status){
+  const orders = (window._allOrders||[]).filter(o=>o.status===status);
+  await Promise.all(orders.map(o=>window._fsDelete(window._fsDoc(window._db,'orders',o._docId))));
+}
 
 /* ═══════════════════════════════════════════════════════
    HELPERS
@@ -835,21 +956,18 @@ function findItem(id){
     const f=cat.find(i=>i.id===id); if(f) return f;
   }
 }
-
 function isItemSoldOut(id){ return soldOutItems.includes(id); }
 function toggleItemSoldOut(id){
   if(isItemSoldOut(id)) soldOutItems=soldOutItems.filter(i=>i!==id);
   else soldOutItems.push(id);
-  localStorage.setItem('crumbSoldOut',JSON.stringify(soldOutItems));
+  saveSettings();
 }
-
-// Key: "itemId::optKey::optValue"
 function makeOptKey(itemId,optKey,optValue){ return `${itemId}::${optKey}::${optValue}`; }
-function isOptSoldOut(itemId,optKey,optValue){ return !!soldOutOptions[makeOptKey(itemId,optKey,optValue)]; }
+function isOptSoldOut(itemId,optKey,optValue){ return !!(soldOutOptions[makeOptKey(itemId,optKey,optValue)]); }
 function toggleOptSoldOut(itemId,optKey,optValue){
   const k=makeOptKey(itemId,optKey,optValue);
   if(soldOutOptions[k]) delete soldOutOptions[k]; else soldOutOptions[k]=true;
-  localStorage.setItem('crumbSoldOutOptions',JSON.stringify(soldOutOptions));
+  saveSettings();
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -862,9 +980,12 @@ window.addEventListener('DOMContentLoaded',()=>{
     p=Math.min(p+3,100); bar.style.width=p+'%';
     if(p>=100){ clearInterval(iv); setTimeout(()=>document.getElementById('loading-screen').classList.add('hidden'),300); }
   },18);
-  buildMenu();
   updateCartBubble();
-  applyMenuClosedState();
+  waitForFirebase(()=>{
+    loadSettings();
+    listenToSettings();
+    listenToOrders();
+  });
 });
 
 /* ═══════════════════════════════════════════════════════
@@ -883,31 +1004,24 @@ function showPage(name){
   updateMenuToggleBtnVisibility(name);
   if(name==='order') renderOrderPage();
 }
-
 function updateMenuToggleBtnVisibility(pageName){
   const btn=document.getElementById('menu-toggle-btn');
   btn.style.display=(pageName==='menu' && !menuClosed)?'flex':'none';
 }
-
 function toggleMobile(){ document.getElementById('mobile-menu').classList.toggle('open'); }
-
 window.addEventListener('scroll',()=>{
   document.getElementById('navbar').classList.toggle('scrolled',window.scrollY>20);
 });
 
 /* ═══════════════════════════════════════════════════════
    ADMIN PASSWORD MODAL
-   Two modes:
-     1. password mode  — shows password input
-     2. content mode   — shows arbitrary HTML (for 86 panels)
 ═══════════════════════════════════════════════════════ */
 function openAdminModal(title,sub,icon,callback){
   adminCallback=callback;
-  // Reset to password form
   document.getElementById('admin-panel-content').innerHTML=`
-    <div class="admin-panel-icon" id="admin-icon">${icon}</div>
-    <div class="admin-panel-title" id="admin-title">${title}</div>
-    <div class="admin-panel-sub" id="admin-sub">${sub}</div>
+    <div class="admin-panel-icon">${icon}</div>
+    <div class="admin-panel-title">${title}</div>
+    <div class="admin-panel-sub">${sub}</div>
     <input class="admin-pw-input" type="password" id="admin-pw-input" placeholder="Enter password..." onkeydown="if(event.key==='Enter')submitAdminPw()"/>
     <div class="admin-error-msg" id="admin-error"></div>
     <button class="admin-submit-btn" onclick="submitAdminPw()">Confirm ✓</button>
@@ -915,16 +1029,13 @@ function openAdminModal(title,sub,icon,callback){
   document.getElementById('admin-modal-backdrop').style.display='flex';
   setTimeout(()=>document.getElementById('admin-pw-input')?.focus(),100);
 }
-
 function closeAdminModal(){
   document.getElementById('admin-modal-backdrop').style.display='none';
   adminCallback=null;
 }
-
 function handleAdminBackdrop(e){
   if(e.target===document.getElementById('admin-modal-backdrop')) closeAdminModal();
 }
-
 function submitAdminPw(){
   const inp=document.getElementById('admin-pw-input');
   const err=document.getElementById('admin-error');
@@ -940,86 +1051,66 @@ function submitAdminPw(){
 
 /* ═══════════════════════════════════════════════════════
    86 OPTION ADMIN UI
-   Completely self-contained panel — no inline JSON in HTML attrs
 ═══════════════════════════════════════════════════════ */
-
-// Stores the context for the currently-open option admin panel
 let _optAdminCtx = null;
 
-function openOptionAdmin(itemId, optKey, options){
-  // Ask for password first, then show the 86 panel
-  openAdminModal(
-    'Manage Options',
-    "Enter the admin password to mark options as 86'd.",
-    '⚙️',
-    () => showOptionAdminPanel(itemId, optKey, options)
-  );
+function openOptionAdmin(itemId,optKey,options){
+  openAdminModal('Manage Options',"Enter the admin password to mark options as 86'd.",'⚙️',
+    ()=>showOptionAdminPanel(itemId,optKey,options));
 }
-
-function showOptionAdminPanel(itemId, optKey, options){
-  // Save context so toggle buttons can call back without inline args
-  _optAdminCtx = { itemId, optKey, options };
-
-  const item = findItem(itemId);
-  const panel = document.getElementById('admin-panel-content');
-
-  panel.innerHTML = `
+function showOptionAdminPanel(itemId,optKey,options){
+  _optAdminCtx={itemId,optKey,options};
+  const item=findItem(itemId);
+  document.getElementById('admin-panel-content').innerHTML=`
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
       <div style="width:40px;height:40px;background:var(--brown2);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;">⚙️</div>
       <div>
-        <div style="font-family:'Fredoka One',cursive;font-size:1.1rem;color:var(--brown2);">${item?.name || itemId}</div>
+        <div style="font-family:'Fredoka One',cursive;font-size:1.1rem;color:var(--brown2);">${item?.name||itemId}</div>
         <div style="font-family:'Patrick Hand',cursive;font-size:0.82rem;color:#aaa;">Toggle what's 86'd · ${optKey}</div>
       </div>
     </div>
     <div id="option-rows-container"></div>
-    <button class="admin-cancel-btn" style="margin-top:10px;" onclick="closeAdminModal();if(currentItem) openModal(currentItem.id);">Done ✓</button>`;
-
+    <button class="admin-cancel-btn" style="margin-top:10px;" onclick="closeAdminModal();if(currentItem)openModal(currentItem.id);">Done ✓</button>`;
   document.getElementById('admin-modal-backdrop').style.display='flex';
   renderOptionRows();
 }
-
 function renderOptionRows(){
   if(!_optAdminCtx) return;
-  const { itemId, optKey, options } = _optAdminCtx;
-  const container = document.getElementById('option-rows-container');
-  if(!container) return;
-
-  container.innerHTML = options.map((opt,i) => {
-    const so = isOptSoldOut(itemId, optKey, opt);
+  const{itemId,optKey,options}=_optAdminCtx;
+  const container=document.getElementById('option-rows-container'); if(!container) return;
+  container.innerHTML=options.map((opt,i)=>{
+    const so=isOptSoldOut(itemId,optKey,opt);
     return `<div class="option-toggle-row ${so?'eighty-six':'available'}">
       <span class="option-toggle-name">${opt}${so?' <span style="font-size:0.75rem;color:#dc3545;font-family:\'Caveat\',cursive;">86\'d</span>':''}</span>
-      <button class="option-toggle-btn ${so?'btn-restore':'btn-86'}"
-        onclick="toggleOptAndRefresh(${i})">
+      <button class="option-toggle-btn ${so?'btn-restore':'btn-86'}" onclick="toggleOptAndRefresh(${i})">
         ${so?'✓ Available':'86 It'}
       </button>
     </div>`;
   }).join('');
 }
-
 function toggleOptAndRefresh(optionIndex){
   if(!_optAdminCtx) return;
-  const { itemId, optKey, options } = _optAdminCtx;
-  toggleOptSoldOut(itemId, optKey, options[optionIndex]);
+  const{itemId,optKey,options}=_optAdminCtx;
+  toggleOptSoldOut(itemId,optKey,options[optionIndex]);
   renderOptionRows();
-  // Also rebuild the dropdown in the modal behind if still open
-  refreshModalSelect(itemId, optKey, options);
+  refreshModalSelect(itemId,optKey,options);
 }
-
-// Rebuild a single <select> in the open item modal without closing it
-function refreshModalSelect(itemId, optKey, options){
-  const sel = document.getElementById('custom-'+optKey);
-  if(!sel) return;
-  const currentVal = sel.value;
-  sel.innerHTML = options.map(opt => {
-    const so = isOptSoldOut(itemId, optKey, opt);
-    const firstAvail = !so && !sel.querySelector(`option[value="${currentVal}"]:not([disabled])`);
-    return `<option value="${opt}" ${so?'disabled':''} ${opt===currentVal && !so?'selected':''}>${opt}${so?" — 86'd":''}</option>`;
+function refreshModalSelect(itemId,optKey,options){
+  const sel=document.getElementById('custom-'+optKey); if(!sel) return;
+  const currentVal=sel.value;
+  sel.innerHTML=options.map(opt=>{
+    const so=isOptSoldOut(itemId,optKey,opt);
+    return `<option value="${opt}"${so?' disabled':''}${opt===currentVal&&!so?' selected':''}>${opt}${so?" — 86'd":''}</option>`;
   }).join('');
-  // If previously selected option is now disabled, jump to first available
   if(sel.options[sel.selectedIndex]?.disabled){
-    const firstOk = [...sel.options].find(o=>!o.disabled);
-    if(firstOk) firstOk.selected = true;
+    const firstOk=[...sel.options].find(o=>!o.disabled);
+    if(firstOk) firstOk.selected=true;
   }
+}
+function triggerOptionAdmin(itemId,optKey){
+  const meta=document.getElementById(`optmeta-${itemId}-${optKey}`); if(!meta) return;
+  const options=JSON.parse(meta.dataset.opts);
+  openOptionAdmin(itemId,optKey,options);
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -1027,18 +1118,18 @@ function refreshModalSelect(itemId, optKey, options){
 ═══════════════════════════════════════════════════════ */
 function applyMenuClosedState(){
   const overlay=document.getElementById('menu-closed-overlay');
-  menuClosed ? overlay.classList.add('open') : overlay.classList.remove('open');
+  menuClosed?overlay.classList.add('open'):overlay.classList.remove('open');
   const cur=document.querySelector('.page.active')?.id?.replace('page-','')||'home';
   updateMenuToggleBtnVisibility(cur);
 }
 function handleCloseMenu(){
   openAdminModal('Close the Menu','Enter the admin password to stop taking orders for the night.','🔒',()=>{
-    menuClosed=true; localStorage.setItem('crumbMenuClosed','true'); applyMenuClosedState();
+    menuClosed=true; saveSettings(); applyMenuClosedState();
   });
 }
 function handleOpenMenu(){
   openAdminModal('Open the Menu','Enter the admin password to re-open Crumb Café for orders.','🔓',()=>{
-    menuClosed=false; localStorage.setItem('crumbMenuClosed','false'); applyMenuClosedState();
+    menuClosed=false; saveSettings(); applyMenuClosedState();
   });
 }
 
@@ -1116,7 +1207,6 @@ function refreshMenuCard(itemId){
 }
 
 function scrollCarousel(dir){ document.getElementById('carousel-track').scrollBy({left:dir*300,behavior:'smooth'}); }
-
 function scrollToSection(id){
   const el=document.getElementById('section-'+id);
   if(el) window.scrollTo({top:el.getBoundingClientRect().top+window.scrollY-150,behavior:'smooth'});
@@ -1131,10 +1221,8 @@ function openModal(id){
   document.getElementById('modal-img').src=currentItem.img;
   document.getElementById('modal-img').alt=currentItem.name;
   document.getElementById('modal-item-name').textContent=currentItem.name;
-
   const so=isItemSoldOut(currentItem.id);
   const lockBtn=document.getElementById('modal-lock-btn');
-
   if(so){
     lockBtn.textContent='🔒'; lockBtn.classList.add('locked');
     document.getElementById('modal-body-content').innerHTML=`
@@ -1162,27 +1250,14 @@ function buildModalBody(item){
         <button class="qty-btn" onclick="changeQty(1)">+</button>
       </div>
     </div>`;
-
   item.customizations.forEach(c=>{
-    html+=`<div class="modal-form-group">`;
-    html+=`<label class="modal-label">${c.label}</label>`;
-
-    if(c.type==='select'){
-      html+=buildSelectField(item.id, c.key, c.options);
-    }
-    else if(c.type==='checkboxes'){
-      html+=buildCheckboxesField(item.id, c.key, c.options);
-    }
-    else if(c.type==='combo-entree'){
-      html+=buildComboEntreeSelector();
-    }
-    else if(c.type==='combo-appetizer'){
-      html+=buildComboAppetizer();
-    }
-
+    html+=`<div class="modal-form-group"><label class="modal-label">${c.label}</label>`;
+    if(c.type==='select')           html+=buildSelectField(item.id,c.key,c.options);
+    else if(c.type==='checkboxes')  html+=buildCheckboxesField(item.id,c.key,c.options);
+    else if(c.type==='combo-entree')html+=buildComboEntreeSelector();
+    else if(c.type==='combo-appetizer')html+=buildComboAppetizer();
     html+=`</div>`;
   });
-
   html+=`<div class="modal-form-group">
     <label class="modal-label">Any other notes?</label>
     <textarea class="modal-textarea" id="modal-notes" rows="2" placeholder="Allergies, special requests..."></textarea>
@@ -1191,30 +1266,26 @@ function buildModalBody(item){
   return html;
 }
 
-/* Build a <select> with 86'd options disabled + admin link below */
-function buildSelectField(itemId, optKey, options){
-  const firstAvail = options.find(o=>!isOptSoldOut(itemId,optKey,o));
+function buildSelectField(itemId,optKey,options){
+  const firstAvail=options.find(o=>!isOptSoldOut(itemId,optKey,o));
   let html=`<select class="modal-select" id="custom-${optKey}">`;
   options.forEach(opt=>{
     const so=isOptSoldOut(itemId,optKey,opt);
-    html+=`<option value="${opt}" ${so?'disabled':''} ${opt===firstAvail&&!so?'selected':''}>${opt}${so?" — 86'd":''}</option>`;
+    html+=`<option value="${opt}"${so?' disabled':''}${opt===firstAvail&&!so?' selected':''}>${opt}${so?" — 86'd":''}</option>`;
   });
   html+=`</select>`;
-  // Admin link — uses data stored in a hidden span to avoid inline JSON issues
   html+=`<span id="optmeta-${itemId}-${optKey}" data-item="${itemId}" data-key="${optKey}" data-opts='${JSON.stringify(options)}' style="display:none;"></span>`;
   html+=`<button type="button" class="admin-86-link" onclick="triggerOptionAdmin('${itemId}','${optKey}')">⚙️ Admin: mark options as 86'd</button>`;
   return html;
 }
 
-/* Build checkboxes with per-topping 86 support + admin link */
-function buildCheckboxesField(itemId, optKey, options){
+function buildCheckboxesField(itemId,optKey,options){
   let html=`<div class="toppings-grid">`;
   options.forEach(opt=>{
     const so=isOptSoldOut(itemId,optKey,opt);
     html+=`<label class="topping-check-label${so?' sold-out-topping':''}">
-      <input type="checkbox" name="${optKey}" value="${opt}"${so?' disabled':''} />
-      ${opt}
-      ${so?'<span class="topping-sold-badge">86\'d</span>':''}
+      <input type="checkbox" name="${optKey}" value="${opt}"${so?' disabled':''}/>
+      ${opt}${so?'<span class="topping-sold-badge">86\'d</span>':''}
     </label>`;
   });
   html+=`</div>`;
@@ -1223,33 +1294,18 @@ function buildCheckboxesField(itemId, optKey, options){
   return html;
 }
 
-/* Reads data from the hidden span — no inline JSON attrs needed */
-function triggerOptionAdmin(itemId, optKey){
-  const meta = document.getElementById(`optmeta-${itemId}-${optKey}`);
-  if(!meta) return;
-  const options = JSON.parse(meta.dataset.opts);
-  openOptionAdmin(itemId, optKey, options);
-}
-
-/* Combo — entrée + drink */
 function buildComboEntreeSelector(){
   const fiveEntrees=MENU.entrees.filter(e=>e.price===5.00);
   const twoDrinks=MENU.drinks.filter(d=>d.price===2.00);
   let html=`<div class="combo-selectors">
     <div class="combo-selector-title">🥪 Choose an Entrée ($5)</div>
     <select class="modal-select" id="combo-entree-item" style="margin-bottom:10px;" onchange="updateComboDrinkCustoms('entree')">`;
-  fiveEntrees.forEach(e=>{
-    const so=isItemSoldOut(e.id);
-    html+=`<option value="${e.id}"${so?' disabled':''}>${e.name}${so?" — 86'd":''}</option>`;
-  });
+  fiveEntrees.forEach(e=>{const so=isItemSoldOut(e.id);html+=`<option value="${e.id}"${so?' disabled':''}>${e.name}${so?" — 86'd":''}</option>`;});
   html+=`</select>
     <button type="button" class="admin-86-link" onclick="openComboItemAdmin('entree-items')">⚙️ Admin: mark entrées as 86'd</button>
     <div class="combo-selector-title" style="margin-top:12px;">🥤 Choose a Drink ($2)</div>
     <select class="modal-select" id="combo-drink-item" style="margin-bottom:8px;" onchange="updateComboDrinkCustoms('entree')">`;
-  twoDrinks.forEach(d=>{
-    const so=isItemSoldOut(d.id);
-    html+=`<option value="${d.id}"${so?' disabled':''}>${d.name}${so?" — 86'd":''}</option>`;
-  });
+  twoDrinks.forEach(d=>{const so=isItemSoldOut(d.id);html+=`<option value="${d.id}"${so?' disabled':''}>${d.name}${so?" — 86'd":''}</option>`;});
   html+=`</select>
     <button type="button" class="admin-86-link" onclick="openComboItemAdmin('entree-drinks')">⚙️ Admin: mark drinks as 86'd</button>
     <div id="combo-drink-customs-entree" style="margin-top:8px;"></div>
@@ -1257,25 +1313,18 @@ function buildComboEntreeSelector(){
   return html;
 }
 
-/* Combo — appetizer + drink */
 function buildComboAppetizer(){
   const fiveApps=MENU.appetizers.filter(a=>a.price===5.00);
   const twoDrinks=MENU.drinks.filter(d=>d.price===2.00);
   let html=`<div class="combo-selectors">
     <div class="combo-selector-title">🍟 Choose an Appetizer ($5)</div>
     <select class="modal-select" id="combo-app-item" style="margin-bottom:10px;" onchange="updateComboDrinkCustoms('app')">`;
-  fiveApps.forEach(a=>{
-    const so=isItemSoldOut(a.id);
-    html+=`<option value="${a.id}"${so?' disabled':''}>${a.name}${so?" — 86'd":''}</option>`;
-  });
+  fiveApps.forEach(a=>{const so=isItemSoldOut(a.id);html+=`<option value="${a.id}"${so?' disabled':''}>${a.name}${so?" — 86'd":''}</option>`;});
   html+=`</select>
     <button type="button" class="admin-86-link" onclick="openComboItemAdmin('app-items')">⚙️ Admin: mark appetizers as 86'd</button>
     <div class="combo-selector-title" style="margin-top:12px;">🥤 Choose a Drink ($2)</div>
     <select class="modal-select" id="combo-drink-item-app" style="margin-bottom:8px;" onchange="updateComboDrinkCustoms('app')">`;
-  twoDrinks.forEach(d=>{
-    const so=isItemSoldOut(d.id);
-    html+=`<option value="${d.id}"${so?' disabled':''}>${d.name}${so?" — 86'd":''}</option>`;
-  });
+  twoDrinks.forEach(d=>{const so=isItemSoldOut(d.id);html+=`<option value="${d.id}"${so?' disabled':''}>${d.name}${so?" — 86'd":''}</option>`;});
   html+=`</select>
     <button type="button" class="admin-86-link" onclick="openComboItemAdmin('app-drinks')">⚙️ Admin: mark drinks as 86'd</button>
     <div id="combo-drink-customs-app" style="margin-top:8px;"></div>
@@ -1283,52 +1332,41 @@ function buildComboAppetizer(){
   return html;
 }
 
-/* Render the drink customization fields inside a combo */
 function updateComboDrinkCustoms(type){
-  const drinkSelId  = type==='entree' ? 'combo-drink-item' : 'combo-drink-item-app';
-  const customsId   = type==='entree' ? 'combo-drink-customs-entree' : 'combo-drink-customs-app';
-  const prefix      = type==='entree' ? 'ce-' : 'ca-';
-  const container   = document.getElementById(customsId); if(!container) return;
-  const drinkSel    = document.getElementById(drinkSelId); if(!drinkSel) return;
-  const drinkId     = drinkSel.value;
-  const drink       = findItem(drinkId);
-  if(!drink || !drink.customizations.length){ container.innerHTML=''; return; }
+  const drinkSelId=type==='entree'?'combo-drink-item':'combo-drink-item-app';
+  const customsId=type==='entree'?'combo-drink-customs-entree':'combo-drink-customs-app';
+  const prefix=type==='entree'?'ce-':'ca-';
+  const container=document.getElementById(customsId); if(!container) return;
+  const drinkSel=document.getElementById(drinkSelId); if(!drinkSel) return;
+  const drink=findItem(drinkSel.value);
+  if(!drink||!drink.customizations.length){container.innerHTML='';return;}
   let html='';
   drink.customizations.forEach(c=>{
     if(c.type==='select'){
       html+=`<div style="margin-bottom:8px;">
         <label class="modal-label" style="font-size:0.85rem;">${c.label}</label>
         <select class="modal-select" id="${prefix}custom-${c.key}" style="margin-bottom:2px;">`;
-      c.options.forEach(opt=>{
-        const so=isOptSoldOut(drinkId,c.key,opt);
-        html+=`<option value="${opt}"${so?' disabled':''}>${opt}${so?" — 86'd":''}</option>`;
-      });
+      c.options.forEach(opt=>{const so=isOptSoldOut(drinkSel.value,c.key,opt);html+=`<option value="${opt}"${so?' disabled':''}>${opt}${so?" — 86'd":''}</option>`;});
       html+=`</select>
-        <span id="optmeta-${drinkId}-${c.key}" data-item="${drinkId}" data-key="${c.key}" data-opts='${JSON.stringify(c.options)}' style="display:none;"></span>
-        <button type="button" class="admin-86-link" onclick="triggerOptionAdmin('${drinkId}','${c.key}')">⚙️ Admin: mark options as 86'd</button>
+        <span id="optmeta-${drinkSel.value}-${c.key}" data-item="${drinkSel.value}" data-key="${c.key}" data-opts='${JSON.stringify(c.options)}' style="display:none;"></span>
+        <button type="button" class="admin-86-link" onclick="triggerOptionAdmin('${drinkSel.value}','${c.key}')">⚙️ Admin: mark options as 86'd</button>
       </div>`;
     }
   });
   container.innerHTML=html;
 }
 
-/* Admin: toggle entire items sold out within a combo dropdown */
 function openComboItemAdmin(comboType){
-  // Determine which items to show
   let items=[];
   if(comboType==='entree-items') items=MENU.entrees.filter(e=>e.price===5.00);
   else if(comboType==='app-items') items=MENU.appetizers.filter(a=>a.price===5.00);
-  else if(comboType==='entree-drinks' || comboType==='app-drinks') items=MENU.drinks.filter(d=>d.price===2.00);
-
-  openAdminModal('Manage Combo Items',"Toggle which items are 86'd in this combo.",'⚙️',()=>{
-    showComboItemAdminPanel(comboType, items);
-  });
+  else items=MENU.drinks.filter(d=>d.price===2.00);
+  openAdminModal('Manage Combo Items',"Toggle which items are 86'd in this combo.",'⚙️',
+    ()=>showComboItemAdminPanel(comboType,items));
 }
-
-function showComboItemAdminPanel(comboType, items){
-  const panel=document.getElementById('admin-panel-content');
-  const label = comboType==='entree-items'?'Entrées':comboType==='app-items'?'Appetizers':'Drinks';
-  panel.innerHTML=`
+function showComboItemAdminPanel(comboType,items){
+  const label=comboType==='entree-items'?'Entrées':comboType==='app-items'?'Appetizers':'Drinks';
+  document.getElementById('admin-panel-content').innerHTML=`
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
       <div style="width:40px;height:40px;background:var(--brown2);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;">⚙️</div>
       <div>
@@ -1337,52 +1375,43 @@ function showComboItemAdminPanel(comboType, items){
       </div>
     </div>
     <div id="combo-item-rows"></div>
-    <button class="admin-cancel-btn" style="margin-top:10px;" onclick="closeAdminModal();if(currentItem) openModal(currentItem.id);">Done ✓</button>`;
+    <button class="admin-cancel-btn" style="margin-top:10px;" onclick="closeAdminModal();if(currentItem)openModal(currentItem.id);">Done ✓</button>`;
   document.getElementById('admin-modal-backdrop').style.display='flex';
-  renderComboItemRows(comboType, items);
+  renderComboItemRows(comboType,items);
 }
-
-function renderComboItemRows(comboType, items){
+function renderComboItemRows(comboType,items){
   const container=document.getElementById('combo-item-rows'); if(!container) return;
   container.innerHTML=items.map((item,i)=>{
     const so=isItemSoldOut(item.id);
     return `<div class="option-toggle-row ${so?'eighty-six':'available'}">
       <span class="option-toggle-name">${item.name}${so?' <span style="font-size:0.75rem;color:#dc3545;font-family:\'Caveat\',cursive;">86\'d</span>':''}</span>
-      <button class="option-toggle-btn ${so?'btn-restore':'btn-86'}"
-        onclick="toggleComboItemAndRefresh('${item.id}','${comboType}',${i})">
+      <button class="option-toggle-btn ${so?'btn-restore':'btn-86'}" onclick="toggleComboItemAndRefresh('${item.id}','${comboType}',${i})">
         ${so?'✓ Available':'86 It'}
       </button>
     </div>`;
   }).join('');
 }
-
-function toggleComboItemAndRefresh(itemId, comboType, idx){
+function toggleComboItemAndRefresh(itemId,comboType,idx){
   toggleItemSoldOut(itemId);
   let items=[];
   if(comboType==='entree-items') items=MENU.entrees.filter(e=>e.price===5.00);
   else if(comboType==='app-items') items=MENU.appetizers.filter(a=>a.price===5.00);
   else items=MENU.drinks.filter(d=>d.price===2.00);
-  renderComboItemRows(comboType, items);
-
-  // Refresh the combo dropdown in the modal
-  const selId = comboType==='entree-items'?'combo-entree-item':comboType==='app-items'?'combo-app-item':comboType==='entree-drinks'?'combo-drink-item':'combo-drink-item-app';
+  renderComboItemRows(comboType,items);
+  const selId=comboType==='entree-items'?'combo-entree-item':comboType==='app-items'?'combo-app-item':comboType==='entree-drinks'?'combo-drink-item':'combo-drink-item-app';
   const sel=document.getElementById(selId); if(!sel) return;
   [...sel.options].forEach(opt=>{
-    const item=findItem(opt.value);
-    if(!item) return;
+    const item=findItem(opt.value); if(!item) return;
     const so=isItemSoldOut(item.id);
-    opt.disabled=so;
-    opt.textContent=item.name+(so?" — 86'd":'');
+    opt.disabled=so; opt.textContent=item.name+(so?" — 86'd":'');
   });
   if(sel.options[sel.selectedIndex]?.disabled){
     const firstOk=[...sel.options].find(o=>!o.disabled);
     if(firstOk) firstOk.selected=true;
   }
-  // Refresh menu card too
   refreshMenuCard(itemId);
 }
 
-/* Close modal */
 function closeModal(){
   document.getElementById('item-modal').classList.remove('open');
   document.body.style.overflow='';
@@ -1391,8 +1420,6 @@ function closeModal(){
 function handleModalBackdrop(e){
   if(e.target===document.getElementById('item-modal')) closeModal();
 }
-
-/* Qty */
 function changeQty(d){
   qty=Math.max(1,qty+d);
   const el=document.getElementById('qty-display'); if(el) el.textContent=qty;
@@ -1405,49 +1432,38 @@ function updateModalPrice(){
   const ab=document.getElementById('modal-add-btn'); if(ab) ab.textContent=`Add to Order — $${total}`;
 }
 
-/* Collect customizations */
 function collectCustomizations(item){
   const parts=[];
   item.customizations.forEach(c=>{
     if(c.type==='select'){
       const el=document.getElementById('custom-'+c.key);
-      if(el && el.value) parts.push(`${c.label}: ${el.value}`);
-    }
-    else if(c.type==='checkboxes'){
+      if(el&&el.value) parts.push(`${c.label}: ${el.value}`);
+    } else if(c.type==='checkboxes'){
       const checked=[...document.querySelectorAll(`input[name="${c.key}"]:checked`)].map(i=>i.value);
-      if(checked.length) parts.push(`${c.label}: ${checked.join(', ')}`);
-      else parts.push(`${c.label}: None`);
-    }
-    else if(c.type==='combo-entree'){
+      parts.push(`${c.label}: ${checked.length?checked.join(', '):'None'}`);
+    } else if(c.type==='combo-entree'){
       const entEl=document.getElementById('combo-entree-item');
       const drkEl=document.getElementById('combo-drink-item');
-      if(entEl && drkEl){
+      if(entEl&&drkEl){
         const entItem=findItem(entEl.value);
         const drkItem=findItem(drkEl.value);
         if(entItem) parts.push(`Entrée: ${entItem.name}`);
         if(drkItem){
           const sub=[];
-          (drkItem.customizations||[]).forEach(dc=>{
-            const cel=document.getElementById('ce-custom-'+dc.key);
-            if(cel) sub.push(`${dc.label}: ${cel.value}`);
-          });
+          (drkItem.customizations||[]).forEach(dc=>{const cel=document.getElementById('ce-custom-'+dc.key);if(cel)sub.push(`${dc.label}: ${cel.value}`);});
           parts.push(`Drink: ${drkItem.name}${sub.length?' ('+sub.join(', ')+')':''}`);
         }
       }
-    }
-    else if(c.type==='combo-appetizer'){
+    } else if(c.type==='combo-appetizer'){
       const appEl=document.getElementById('combo-app-item');
       const drkEl=document.getElementById('combo-drink-item-app');
-      if(appEl && drkEl){
+      if(appEl&&drkEl){
         const appItem=findItem(appEl.value);
         const drkItem=findItem(drkEl.value);
         if(appItem) parts.push(`Appetizer: ${appItem.name}`);
         if(drkItem){
           const sub=[];
-          (drkItem.customizations||[]).forEach(dc=>{
-            const cel=document.getElementById('ca-custom-'+dc.key);
-            if(cel) sub.push(`${dc.label}: ${cel.value}`);
-          });
+          (drkItem.customizations||[]).forEach(dc=>{const cel=document.getElementById('ca-custom-'+dc.key);if(cel)sub.push(`${dc.label}: ${cel.value}`);});
           parts.push(`Drink: ${drkItem.name}${sub.length?' ('+sub.join(', ')+')':''}`);
         }
       }
@@ -1456,22 +1472,20 @@ function collectCustomizations(item){
   return parts;
 }
 
-/* Add to cart */
 function addToCart(){
   if(!currentItem) return;
   const parts=collectCustomizations(currentItem);
   const notes=document.getElementById('modal-notes')?.value?.trim()||'';
   if(notes) parts.push(`Note: ${notes}`);
   const customStr=parts.join('\n');
-  const existing=cart.find(i=>i.id===currentItem.id && i.customStr===customStr);
-  if(existing){ existing.qty+=qty; existing.totalPrice=existing.price*existing.qty; }
+  const existing=cart.find(i=>i.id===currentItem.id&&i.customStr===customStr);
+  if(existing){existing.qty+=qty;existing.totalPrice=existing.price*existing.qty;}
   else cart.push({...currentItem,qty,customStr,totalPrice:currentItem.price*qty});
   saveCart(); updateCartBubble(); closeModal();
   const bubble=document.getElementById('cart-bubble');
   bubble.style.transform='scale(1.2)'; setTimeout(()=>bubble.style.transform='',200);
 }
 
-/* Admin: lock/unlock item */
 function handleItemLock(){
   if(!currentItem) return;
   const so=isItemSoldOut(currentItem.id);
@@ -1484,7 +1498,7 @@ function handleItemLock(){
 }
 
 /* ═══════════════════════════════════════════════════════
-   CART
+   CART  (stays in localStorage — per-device is fine for cart)
 ═══════════════════════════════════════════════════════ */
 function saveCart(){ localStorage.setItem('crumbCart',JSON.stringify(cart)); }
 function updateCartBubble(){
@@ -1506,18 +1520,18 @@ function switchTab(name){
   document.getElementById('panel-'+name).classList.add('active');
   if(name==='staff') renderStaffView(); else renderPlaceOrder();
 }
-
-function renderOrderPage(){ renderPlaceOrder(); renderStaffView(); }
+function renderOrderPage(){ renderPlaceOrder(); }
 
 function renderPlaceOrder(){
   const el=document.getElementById('place-order-content');
-  const allOrders=JSON.parse(localStorage.getItem('crumbOrders')||'[]');
-  const recentOrders=allOrders.slice(-5);
+  const allOrders=window._allOrders||[];
+  // Show customer their recent orders
   let statusHtml='';
-  if(recentOrders.length>0){
+  if(allOrders.length>0){
+    const recent=allOrders.slice(-5).reverse();
     statusHtml=`<div class="order-section-card">
       <div class="order-section-head">📋 Recent Order Status</div>
-      ${recentOrders.reverse().map(o=>`
+      ${recent.map(o=>`
         <div class="status-item">
           <div><div class="status-name">${o.name}</div><div class="status-sub">${o.items.length} item${o.items.length!==1?'s':''} · $${o.total.toFixed(2)}</div></div>
           <div class="status-badge ${o.status==='completed'?'status-complete':o.status==='canceled'?'status-canceled':'status-pending'}">
@@ -1532,30 +1546,27 @@ function renderPlaceOrder(){
       <div class="empty-title">Your cart is empty!</div>
       <div class="empty-sub">The squirrel is waiting for your order...</div>
       <button class="btn-green" onclick="showPage('menu')" style="margin:0 auto;">← Browse Menu</button>
-    </div>`;
-    return;
+    </div>`; return;
   }
   const total=cart.reduce((s,i)=>s+i.totalPrice,0);
   el.innerHTML=statusHtml+`
     <div class="order-section-card">
       <div class="order-section-head">🛍️ Your Order</div>
-      <div id="cart-items-list">
-        ${cart.map((item,i)=>`
-          <div class="cart-item-row">
-            <div class="cart-item-thumb"><img src="${item.img}" alt="${item.name}"/></div>
-            <div class="cart-item-info">
-              <div class="cart-item-name">${item.name}</div>
-              ${item.customStr?`<div class="cart-item-note">${item.customStr}</div>`:''}
-              <div class="cart-item-price">$${item.totalPrice.toFixed(2)}</div>
-            </div>
-            <div class="cart-controls">
-              <button class="cart-qty-btn" onclick="updateCartQty(${i},-1)">−</button>
-              <span class="cart-qty">${item.qty}</span>
-              <button class="cart-qty-btn" onclick="updateCartQty(${i},1)">+</button>
-              <button class="remove-btn" onclick="removeCartItem(${i})">✕</button>
-            </div>
-          </div>`).join('')}
-      </div>
+      ${cart.map((item,i)=>`
+        <div class="cart-item-row">
+          <div class="cart-item-thumb"><img src="${item.img}" alt="${item.name}"/></div>
+          <div class="cart-item-info">
+            <div class="cart-item-name">${item.name}</div>
+            ${item.customStr?`<div class="cart-item-note">${item.customStr}</div>`:''}
+            <div class="cart-item-price">$${item.totalPrice.toFixed(2)}</div>
+          </div>
+          <div class="cart-controls">
+            <button class="cart-qty-btn" onclick="updateCartQty(${i},-1)">−</button>
+            <span class="cart-qty">${item.qty}</span>
+            <button class="cart-qty-btn" onclick="updateCartQty(${i},1)">+</button>
+            <button class="remove-btn" onclick="removeCartItem(${i})">✕</button>
+          </div>
+        </div>`).join('')}
       <div class="order-total-row">
         <span class="order-total-label">Total</span>
         <span class="order-total-val">$${total.toFixed(2)}</span>
@@ -1578,24 +1589,6 @@ function updateCartQty(index,delta){
 }
 function removeCartItem(index){ cart.splice(index,1); saveCart(); updateCartBubble(); renderPlaceOrder(); }
 
-function submitOrder(){
-  const name=document.getElementById('order-name')?.value?.trim();
-  if(!name){ document.getElementById('order-name')?.focus(); return; }
-  const order={
-    id:Date.now(), name,
-    pickup:document.getElementById('order-pickup')?.value,
-    notes:document.getElementById('order-notes')?.value?.trim(),
-    items:[...cart],
-    total:cart.reduce((s,i)=>s+i.totalPrice,0),
-    timestamp:new Date().toISOString(),
-    status:'pending'
-  };
-  const existing=JSON.parse(localStorage.getItem('crumbOrders')||'[]');
-  existing.push(order);
-  localStorage.setItem('crumbOrders',JSON.stringify(existing));
-  cart=[]; saveCart(); updateCartBubble(); showToast(name); renderPlaceOrder();
-}
-
 function showToast(name){
   const toast=document.getElementById('success-toast');
   document.getElementById('toast-sub-text').textContent=`Thanks ${name}! Head to Crumb Café and pay when you arrive.`;
@@ -1607,8 +1600,8 @@ function showToast(name){
    STAFF VIEW
 ═══════════════════════════════════════════════════════ */
 function renderStaffView(){
-  const el=document.getElementById('staff-content');
-  const all=JSON.parse(localStorage.getItem('crumbOrders')||'[]');
+  const el=document.getElementById('staff-content'); if(!el) return;
+  const all=window._allOrders||[];
   const pending=all.filter(o=>o.status==='pending');
   const completed=all.filter(o=>o.status==='completed');
   const canceled=all.filter(o=>o.status==='canceled');
@@ -1636,8 +1629,8 @@ function renderStaffView(){
             </div>`).join('')}
         </div>
         ${order.notes?`<div class="order-extra-note">"${order.notes}"</div>`:''}
-        <button class="mark-complete-btn" onclick="markComplete(${order.id})">✓ Mark as Complete</button>
-        <button class="cancel-order-btn" onclick="handleCancelOrder(${order.id},'${order.name}')">✕ Cancel Ticket</button>
+        <button class="mark-complete-btn" onclick="markComplete('${order._docId}')">✓ Mark as Complete</button>
+        <button class="cancel-order-btn" onclick="handleCancelOrder('${order._docId}','${order.name}')">✕ Cancel Ticket</button>
       </div>`;
     });
     html+=`</div>`;
@@ -1658,39 +1651,19 @@ function renderStaffView(){
   el.innerHTML=html;
 }
 
-function markComplete(id){
-  const all=JSON.parse(localStorage.getItem('crumbOrders')||'[]');
-  const idx=all.findIndex(o=>o.id===id);
-  if(idx>=0) all[idx].status='completed';
-  localStorage.setItem('crumbOrders',JSON.stringify(all));
-  renderStaffView();
-  if(document.getElementById('panel-place').classList.contains('active')) renderPlaceOrder();
-}
-
-function handleCancelOrder(id,name){
+function handleCancelOrder(docId,name){
   openAdminModal('Cancel Ticket',`Enter the admin password to cancel ${name}'s order.`,'✕',()=>{
-    const all=JSON.parse(localStorage.getItem('crumbOrders')||'[]');
-    const idx=all.findIndex(o=>o.id===id);
-    if(idx>=0) all[idx].status='canceled';
-    localStorage.setItem('crumbOrders',JSON.stringify(all));
-    renderStaffView();
-    if(document.getElementById('panel-place').classList.contains('active')) renderPlaceOrder();
+    _cancelOrder(docId);
   });
 }
-
 function handleClearCompleted(){
   openAdminModal('Clear Completed Orders','Enter the admin password to permanently delete all completed orders.','🗑️',()=>{
-    const all=JSON.parse(localStorage.getItem('crumbOrders')||'[]');
-    localStorage.setItem('crumbOrders',JSON.stringify(all.filter(o=>o.status!=='completed')));
-    renderStaffView();
+    _clearByStatus('completed');
   });
 }
-
 function handleClearCanceled(){
   openAdminModal('Clear Canceled Orders','Enter the admin password to permanently delete all canceled orders.','🗑️',()=>{
-    const all=JSON.parse(localStorage.getItem('crumbOrders')||'[]');
-    localStorage.setItem('crumbOrders',JSON.stringify(all.filter(o=>o.status!=='canceled')));
-    renderStaffView();
+    _clearByStatus('canceled');
   });
 }
 </script>
